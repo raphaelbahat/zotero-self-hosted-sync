@@ -16,7 +16,7 @@
 - [x] 2.7 Add the optional `streaming` string option: a full WebSocket URL (cleartext or TLS, path allowed); when it is empty, derive `wss://<origin>/stream`. Keep the derivation in one place so the policy is cheap to change.
 - [x] 2.8 Add a `resourcePatch` that, when the supplied streaming URL is cleartext, adds its host to the cleartext `domain-config` in `res/xml/network_security_config.xml`, and confirm the built bundle carries both patches (bytecode + resource).
 - [x] 2.9 Neutralise the app's login-URL append: rewrite the `"&app=1"` literal to an empty string so the server-provided login URL is opened verbatim (absence of the literal is tolerated and recorded, since a future target may stop appending).
-- [ ] 2.10 Correct the precondition header (R5): rewrite the misspelled `If-Modified-Since-Version` literal everywhere it appears (the deletion write and the two read paths) to `If-Unmodified-Since-Version`, and fail when the literal is absent.
+- [x] 2.10 Correct the precondition header (R5): rewrite the misspelled `If-Modified-Since-Version` literal everywhere it appears (the deletion write and the two read paths) to `If-Unmodified-Since-Version`, and fail when the literal is absent. (Verified in the patch: `CustomSyncServerPatch.kt:70–76` holds the rule, rewrites through `rewriteConstString(DELETE_PRECONDITION_HEADER_MISSPELLED, DELETE_PRECONDITION_HEADER)`, and throws a `PatchException` when it finds none. The two literals are the constants in `SyncServerOption.kt`.)
 
 ## 3. Bundle and build checks
 
