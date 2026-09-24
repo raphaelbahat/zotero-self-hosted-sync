@@ -1,3 +1,10 @@
+## [1.0.2-dev.1](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.1...v1.0.2-dev.1) (2026-09-24)
+
+### 🐛 Bug Fixes
+
+* **ci:** let the release job see dev, which semantic-release asks about ([f67ebf0](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/f67ebf0732612637ba3d05c23a6200f4c1d58032))
+* **ci:** merge dev into main and release in one workflow, without a pull request ([f650628](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/f65062813b057ae3b975b7c867cfc939f2fb0d33))
+
 ## [1.0.1](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.0...v1.0.1) (2026-09-24)
 
 ### 🐛 Bug Fixes
