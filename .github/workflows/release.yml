@@ -1,18 +1,22 @@
 name: Release
 
-# A push to dev is merged into main and released from there, in one run. There is no pull request
-# and nothing waits on a human, by design.
+# A push to dev is merged into main, and the release is cut from main. No pull request, and nothing
+# waits on a human.
 #
-# Two things about that are worth knowing before changing this file:
+# It takes two runs, and the reason is worth keeping. semantic-release decides which branch it is on
+# from the *event* — the ref the workflow was triggered by — not from the branch a job checked out.
+# A push to dev therefore looks like dev to it whatever is checked out, which is how the first
+# attempt at this published a dev pre-release from main, and why simply constraining the action to
+# main then blocked every release instead.
 #
-#   - Every push to dev becomes a stable release. dev is merged to main immediately, so the branches
-#     stay in step and a prerelease stage would have nothing to sit between.
-#   - The `branches: [dev]` trigger is what stops this from looping. Pushes made with the repository
-#     token — the release commit on main, and the backmerge that carries it into dev — do not start
-#     workflows of their own, so the merge runs once per human push and not once per release.
+# So the push run merges, and then dispatches this same workflow on main. The dispatched run's event
+# ref *is* main, so semantic-release releases a stable version there. A dispatch is also the one way
+# to start a workflow that a push made with the repository token cannot do for itself.
 #
-# main is deliberately not protected. A protected main would reject the merge in the first job, and
-# the release with it.
+# The dev-only trigger, and the `if:` on each job, are what keep this from looping: the release
+# commit and the backmerge are pushed with the repository token, and those pushes start nothing.
+#
+# main is deliberately unprotected. A protected main would reject the merge, and this with it.
 
 on:
   workflow_dispatch:
@@ -23,8 +27,11 @@ on:
 jobs:
   merge:
     name: Merge dev into main
+    # Only when a human pushed. The dispatched run must not merge, or dispatch again.
+    if: github.event_name == 'push'
     permissions:
       contents: write
+      actions: write # to dispatch the release below
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
@@ -47,9 +54,15 @@ jobs:
           fi
           git push origin main
 
+      - name: Release from main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run release.yml --ref main
+
   release:
     name: Release
-    needs: merge
+    # Only the dispatched run releases: only it has main as its event ref.
+    if: github.event_name == 'workflow_dispatch'
     permissions:
       contents: write
       packages: write
@@ -59,8 +72,6 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-      # main, because that is the branch the merge above just moved and the one semantic-release
-      # reads a stable version from.
       - name: Checkout
         uses: actions/checkout@v7
         with:
@@ -68,13 +79,10 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      # semantic-release reads every branch .releaserc configures — it asks `git tag --merged
-      # <branch>` about each to decide which one is releasing — so dev has to resolve in this
-      # clone even though the release is cut from main. Without this the run dies on
-      # "fatal: malformed object name dev" after the merge has already been pushed.
+      # semantic-release asks every branch .releaserc configures which tags are merged into it, so
+      # dev has to resolve in this clone even though the release is cut from main.
       - name: Fetch the other release branches
-        run: |
-          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --tags
+        run: git fetch origin '+refs/heads/*:refs/remotes/origin/*' --tags
 
       - name: Setup Java
         uses: actions/setup-java@v6.0.1
@@ -96,10 +104,6 @@ jobs:
         uses: cycjimmy/semantic-release-action@v6
         id: release
         with:
-          # Only main releases. Without this the action evaluates every branch .releaserc lists —
-          # dev among them, as a prerelease — and a run from main came out as a dev pre-release the
-          # first time this workflow ran. Overriding here also leaves the pre-release branch in
-          # .releaserc idle rather than removed: nothing reads it while this line stands.
           branches: main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -114,8 +118,7 @@ jobs:
           subject-name: 'Morphe Patches ${{ steps.release.outputs.new_release_git_tag }}'
           subject-path: patches/build/libs/patches-*.mpp
 
-      # Compile when semantic-release published nothing — a docs or chore commit, which still
-      # arrives here because every dev push is merged — so a broken source tree is never merged
+      # Compile when semantic-release published nothing, so a broken source tree is never merged
       # silently.
       - name: Verify project compiles
         if: steps.release.outputs.new_release_published != 'true'
