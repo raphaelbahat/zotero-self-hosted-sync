@@ -1,0 +1,36 @@
+## 1. Reconnaissance and artifact evidence
+
+- [ ] 1.1 Run `@apk-recon` on `analysis/zotero/apk/Zotero-for-Android-1.0.0-247-universal.apk` and record package name, version name and code, ABI coverage, protections and APK type in `analysis/zotero/notes/recon.md`.
+- [ ] 1.2 Read the APK manifest with `aapt dump badging` and confirm the package is `org.zotero.android` with versionCode 247 (the pinned APK reports `versionName 1.0.0-247`, `targetSdkVersion 35` and `compileSdkVersion 35` — the source tree declares 36), capturing the app-icon colour and target metadata that `Compatibility` needs.
+- [ ] 1.3 Disassemble every DEX of the APK into `analysis/zotero/smali/` and identify which DEX files and classes hold the two endpoint constants. The target is multidex (8 DEX files) and a bare `baksmali d <apk>` silently disassembles only `classes.dex`, so loop `baksmali list dex` per entry or decode with `apktool d`.
+- [ ] 1.4 Enumerate every `const-string` occurrence of `https://api.zotero.org` and `wss://stream.zotero.org` in the smali, and check whether a `BuildConfig.BASE_API_URL` field initializer is present, recording counts and paths in `analysis/zotero/notes/patch-sites.md`.
+
+## 2. Patch implementation
+
+- [ ] 2.1 Remove the template's `example` patch and its `extensions/` example module, keeping `shared/Constants.kt` as the home for compatibility declarations.
+- [ ] 2.2 Declare `Compatibility` for Zotero in `shared/Constants.kt`: name `Zotero`, packageName `org.zotero.android`, `ApkFileType.APK`, and the target version 1.0.0 with the version code confirmed in 1.2.
+- [ ] 2.3 Add the patch in a new `zotero` package: a `bytecodePatch` with a name and description, a `category("…")` call inside the patch block (it is not a constructor argument), and a `stringOption` for the server address, declared compatible with the Zotero target.
+- [ ] 2.4 Implement origin normalisation and validation: assume `https://` when the scheme is missing, remove one trailing slash, accept `host` or `https://host[:port]`, and refuse an empty value, a non-HTTPS scheme and any path — each stopping patching by throwing `PatchException` with the reason (the option's `required`/`validator` names the option but not the reason).
+- [ ] 2.5 Perform the rewrite inside the patch's `execute` block using the patcher-native path — match with `string(...)` and replace with `replaceInstruction(index, BuilderInstruction21c(Opcode.CONST_STRING, …))` — because the ready-made `replaceStringPatch` lives in `app.morphe:morphe-patches-library` and cannot read an option: replace every `const-string` for `https://api.zotero.org` with the validated origin and every `wss://stream.zotero.org` with `wss://<origin>/stream`, and also replace the `BuildConfig.BASE_API_URL` field value when 1.4 found one. Record the decision on whether to add the `morphe-patches-library` dependency.
+- [ ] 2.6 Confirm by inspection that the patch never edits the manifest's `package` attribute (the only renaming path, via `ArsclibResourceCoder`/`PackageRenamingProcessor`), calls no repackaging facility (ADR-0002), and touches no host other than the two endpoint constants.
+
+## 3. Bundle and build checks
+
+- [ ] 3.1 Build the bundle with `./gradlew buildAndroid` in the toolchain stack and confirm `patches/build/libs/patches-<version>.mpp` is produced.
+- [ ] 3.2 List the built bundle with the Morphe CLI (`list-patches --patches <mpp> -pvo` — `--patches` has no short form, `-p` is `--with-packages`, and `-pvo` is packages + versions + options; the CLI's own docs show a contradicting multi-bundle example) and confirm the patch, its description, its default state (`Enabled:`) and the option's key, title, default and type are reported.
+- [ ] 3.3 Confirm `patches-list.json` is consistent with the declared compatibility, and that no release is cut from this change.
+
+## 4. Device verification against a self-hosted server
+
+- [ ] 4.1 Patch the original APK with the CLI — `patch --patches <mpp> --keystore Morphe.keystore -O<key>=https://<test-host> -o <out.apk> <input.apk>`, where the input APK is a trailing positional argument and `-f` means "skip the version compatibility check" — pinning the selection so no package-renaming patch can apply, and confirm `aapt dump badging` still reports `package: name='org.zotero.android' versionCode='247'`.
+- [ ] 4.2 Install the patched APK on a test device and link an account: the approval page opened must be the server's own page, and linking must complete with a key issued by that server.
+- [ ] 4.3 Synchronise a test library in both directions: a change made in the app must reach the server, and a change made on the server must reach the app.
+- [ ] 4.4 Upload and download one attachment and confirm the bytes reach the server and return to the app.
+- [ ] 4.5 Confirm the live-update connection is made to `wss://<test-host>/stream` and that a server-side change arrives without a manual sync.
+- [ ] 4.6 Confirm each refusal behaves as specified: an empty value, an `http://` origin and an origin with a path each stop patching with a message.
+- [ ] 4.7 Confirm no request from the patched app reaches `api.zotero.org` or `stream.zotero.org`, using the server's request log together with a network check on the device.
+
+## 5. Specification hygiene
+
+- [ ] 5.1 Run `openspec validate custom-sync-server --type change --strict` and fix anything it reports.
+- [ ] 5.2 Update the repository README's patch list only through the release workflow; do not hand-edit generated files.
