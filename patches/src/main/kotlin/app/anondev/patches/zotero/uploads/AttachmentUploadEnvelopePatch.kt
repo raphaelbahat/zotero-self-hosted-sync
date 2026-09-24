@@ -54,9 +54,9 @@ private const val MAX_STEPS_TO_BUILD = 6
 @Suppress("unused")
 val attachmentUploadEnvelopePatch = bytecodePatch(
     name = "Send attachment uploads as the file itself",
-    description = "Sends an attachment upload without the multipart form around it when the server " +
-        "authorized the upload without an S3 form. Workaround for servers that take the bytes " +
-        "themselves; uploads that carry a form are unaffected.",
+    description = "Temporary workaround: sends an attachment upload without the multipart " +
+        "form around it when the server authorized the upload without an S3 form. For servers " +
+        "that take the bytes themselves; uploads that carry a form are unaffected.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZOTERO)

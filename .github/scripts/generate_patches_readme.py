@@ -74,11 +74,44 @@ def anchor(name):
     return re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", name.lower())).strip("-")
 
 
+#: Prefixes a patch description may start with, and how the table renders them. The
+#: description itself stays the single source of truth — the patch says it is temporary or for
+#: development, and this only decides how that reads here. Anything unmatched is printed as-is.
+STYLED_PREFIXES = (
+    ("Temporary workaround: ", "**⏳ Temporary workaround** — "),
+    ("For development only. ", "**🧪 For development only.** "),
+)
+
+#: Shown above the tables whenever the bundle carries a temporary workaround, so the mark in
+#: the description is not the only thing telling a reader the patch will go away.
+TEMPORARY_NOTICE = """> **⚠️ Temporary workarounds**
+>
+> Most patches in this bundle work around a defect in the app or in the sync server rather than
+> adding a feature, and each is removed once the fix it depends on ships. They are marked
+> **⏳ Temporary workaround** in the tables below; a patch without that mark is durable. In the
+> **Default** column, `✅` means the patch is applied when you patch the app, and `—` means you
+> have to switch it on yourself.
+>
+> The four marked ones come from two places: the upload authorization and transfer steps, where
+> a server that hands out no upload form is not understood ([eseifert/altero#13]
+> (https://github.com/eseifert/altero/issues/13)), and the app's own upload reader, which
+> discards an attachment whose stored `md5` or `mtime` it cannot use. All four go away when those
+> are dealt with."""
+
+
+def styled_description(text):
+    """Render a description, styling a leading marker when the patch carries one."""
+    for prefix, rendered in STYLED_PREFIXES:
+        if text.startswith(prefix):
+            return rendered + text[len(prefix):]
+    return text
+
+
 def patches_table(patches):
-    """Render a sorted markdown table of patches with name, description, and options."""
+    """Render a sorted markdown table of patches: name, default, description, options."""
     rows = [
-        "| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |",
-        "|----------|----------------|-----------|",
+        "| 💊&nbsp;Patch | ✅&nbsp;Default | 📜&nbsp;Description | ⚙️&nbsp;Options |",
+        "|----------|:---:|----------------|-----------|",
     ]
     for p in sorted(patches, key=lambda x: x["name"]):
         a = anchor(p["name"])
@@ -89,8 +122,9 @@ def patches_table(patches):
             opts_cell = "<br>".join(f"• {t}" for t in parts)
         else:
             opts_cell = ""
-        desc = (p.get("description") or "").replace("\n", "<br>")
-        rows.append(f"| [{p['name']}](#{a}) | {desc} | {opts_cell} |")
+        default_cell = "✅" if p.get("default") else "—"
+        desc = styled_description(p.get("description") or "").replace("\n", "<br>")
+        rows.append(f"| [{p['name']}](#{a}) | {default_cell} | {desc} | {opts_cell} |")
     return "\n".join(rows)
 
 
@@ -144,11 +178,24 @@ def spoiler(label, count, targets, tbl, expanded=False):
 
 def build_content(expanded=False):
     """Build the full generated patches section."""
+    every_patch = [p for e in by_pkg.values() for p in e["patches"].values()]
+    every_patch += list(universal.values())
+    temporary = [
+        p for p in every_patch
+        if (p.get("description") or "").startswith("Temporary workaround: ")
+    ]
+
     lines = [
         f"> **[v{ver}](https://github.com/{owner}/{repo}/releases/tag/v{ver})**"
         f"&nbsp;&nbsp;•&nbsp;&nbsp;`{branch}`&nbsp;&nbsp;•&nbsp;&nbsp;"
         f"{total} patches total"
     ]
+
+    # Named before the tables rather than after them: a reader deciding what to enable needs to
+    # know a patch is temporary before reading why it exists, not once they have scrolled past it.
+    if temporary:
+        lines.append("")
+        lines.append(TEMPORARY_NOTICE)
 
     # One spoiler per app, in the order they appear in the JSON
     for pkg, entry in by_pkg.items():

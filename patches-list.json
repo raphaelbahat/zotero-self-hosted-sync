@@ -4,7 +4,7 @@
   "patches": [
     {
       "name": "Accept upload authorization that carries no upload form",
-      "description": "Uploads the file when the sync server authorizes an upload without an S3 form envelope. Without this, an authorization the server completed is thrown away as a parse error and the attachment never uploads.",
+      "description": "Temporary workaround: uploads the file when the sync server authorizes an upload without an S3 form envelope. Without this, an authorization the server completed is thrown away as a parse error and the attachment never uploads.",
       "default": true,
       "category": "Sync",
       "dependencies": [],
@@ -123,7 +123,7 @@
     },
     {
       "name": "Enable verbose logging",
-      "description": "Plants Timber's debug tree so the app's own log lines reach logcat. Diagnostics only — expect a lot of output.",
+      "description": "For development only. Plants Timber's debug tree so the app's own log lines reach logcat — expect a lot of output, and do not patch this into a build you rely on.",
       "default": false,
       "category": "Diagnostics",
       "dependencies": [],
@@ -150,7 +150,7 @@
     },
     {
       "name": "Recover attachments with an unusable MD5",
-      "description": "Uploads attachments whose stored MD5 is empty or malformed, instead of sending an unusable digest the server rejects. Without this, the attachment's file never uploads and never reaches other devices.",
+      "description": "Temporary workaround: uploads attachments whose stored MD5 is empty or malformed, instead of sending an unusable digest the server rejects. Without this, the attachment's file never uploads and never reaches other devices.",
       "default": true,
       "category": "Sync",
       "dependencies": [],
@@ -177,7 +177,7 @@
     },
     {
       "name": "Recover attachments with an unusable modification time",
-      "description": "Uploads attachments whose stored modification time cannot be parsed, instead of skipping them forever. Without this, an attachment whose mtime is empty never uploads its file.",
+      "description": "Temporary workaround: uploads attachments whose stored modification time cannot be parsed, instead of skipping them forever. Without this, an attachment whose mtime is empty never uploads its file.",
       "default": true,
       "category": "Sync",
       "dependencies": [],
@@ -204,7 +204,7 @@
     },
     {
       "name": "Send attachment uploads as the file itself",
-      "description": "Sends an attachment upload without the multipart form around it when the server authorized the upload without an S3 form. Workaround for servers that take the bytes themselves; uploads that carry a form are unaffected.",
+      "description": "Temporary workaround: sends an attachment upload without the multipart form around it when the server authorized the upload without an S3 form. For servers that take the bytes themselves; uploads that carry a form are unaffected.",
       "default": true,
       "category": "Sync",
       "dependencies": [],
