@@ -10,10 +10,10 @@ locked out of the official Android app.
 
 ## What Changes
 
-- A new patch, **Custom sync server**, adds a string option for the server address
-  (e.g. `https://zotero.example.org`) and rewrites both compiled endpoint constants:
-  the API base becomes the given origin, and the streaming endpoint becomes
-  `wss://<origin>/stream`.
+- A new patch, **Custom sync server**, adds a required string option for the API origin
+(e.g. `https://zotero.example.org`) and an optional string option for the streaming URL:
+the API base is rewritten to the origin, and the streaming endpoint becomes the supplied URL
+or, when that is left empty, `wss://<origin>/stream`.
 - Login / account-approval and attachment-upload URLs are **server-provided**, so they
   follow the origin automatically; no further client changes are required for a first
   working version.
@@ -22,8 +22,9 @@ locked out of the official Android app.
   renames, repackages or re-namespaces the app or its classes, so the result updates the
   installed app in place (signature permitting, since Morphe re-signs with the user's
   keystore).
-- **HTTPS only in v1**: a non-HTTPS address is refused at patch time with a clear message,
-  instead of producing an APK that Android's cleartext policy would break at runtime.
+- **HTTPS for the API, with a scoped cleartext exception for streaming**: the API option must be
+  `https://…`; the streaming option may be cleartext (`ws://…`), and the patch then adds that
+  one host to the app's cleartext allowlist so the platform does not block it (ADR-0003).
 - Compatibility is declared for the pinned target `org.zotero.android` 1.0.0 (build 247,
   universal APK).
 - No server-side changes. The server must implement the Zotero Web API and the streaming
@@ -48,6 +49,8 @@ locked out of the official Android app.
 - `patches/src/main/kotlin/app/anondev/patches/zotero/example/` and the template's
   `extensions/` example — deleted; v1 is a pure bytecode patch with no runtime extension
   code.
+- `res/xml/network_security_config.xml` — edited at patch time by a `resourcePatch` only when a
+  cleartext streaming URL is supplied: that host is added to the existing cleartext allowlist.
 - Generated release artifacts (`patches-list.json`, `patches-bundle.json`, `CHANGELOG.md`,
   README patch list) change only through the existing release workflow.
 - Analysis evidence (recon, smali findings, device test notes) lives in the morphe-ai
@@ -62,18 +65,19 @@ harness; its method was consulted read-only from the author's OpenSpec store). E
 question below is a **decision for the user**; the answers marked *(confirmed)* came from
 this conversation, including the four recommendations confirmed at the approval gate.
 
-1. **One origin input or several?** *(confirmed: one)* — streaming is a separate single
-   constant that can be derived from the same origin (`wss://<origin>/stream`); the login
-   URL and attachment-upload URL are returned by the server, so they need no input.
+1. **One origin input or several?** *(confirmed, revised)* — one required API origin plus one
+   *optional* streaming URL: the operator's streaming endpoint is cleartext (`ws://…`) and cannot
+   be derived from an HTTPS origin, so it is an explicit override; empty means `wss://<origin>/stream`.
 2. **Static patch-time rewrite or a runtime extension?** *(confirmed: static rewrite)* —
    the address is chosen in the patch dialog, so it is known at patch time; a runtime
    extension would add code that must be maintained and would be the only part of the
    bundle that runs inside the app.
 3. **Target version?** *(confirmed)* — 1.0.0, build 247, universal APK
    (`Zotero-for-Android-1.0.0-247-universal.apk`).
-4. **HTTPS only, or cleartext too?** *(confirmed: HTTPS only)* — the user's server is
-   reachable over HTTPS; cleartext would additionally require a resource patch for
-   `network_security_config.xml` because the target's cleartext policy blocks HTTP (the released APK reports targetSdk 35; cleartext has been blocked since API 28).
+4. **HTTPS only, or cleartext too?** *(confirmed, revised)* — HTTPS for the API origin; the
+   streaming option may be cleartext, and the patch then adds that host to the app's cleartext
+   allowlist (`network_security_config.xml`) because the target's policy blocks cleartext
+   (targetSdk 35; blocked since API 28). Recorded as ADR-0003.
 5. **Keep the original package identity?** *(confirmed: yes)* — explicitly required; the
    design forbids any rename/repackage step.
 6. **May the option include a path (`https://host/zotero`)?** *(confirmed: no in v1)* —

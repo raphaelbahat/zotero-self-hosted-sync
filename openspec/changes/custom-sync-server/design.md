@@ -84,8 +84,10 @@ C4Dynamic
 
 **Non-Goals:**
 
-- Cleartext HTTP support (would need a `network_security_config.xml` resource patch).
-- Sub-path origins (`https://host/zotero`) and a separate streaming host or path.
+- Cleartext for the *API*: only the streaming endpoint may be cleartext, and only for the host
+  the operator supplies (ADR-0003).
+- Sub-path API origins (`https://host/zotero`); the streaming override is a full URL and may
+  carry a path.
 - The cosmetic zotero.org links (registration, settings, citations, styles, update checks).
 - Server-side work, and any support for Zotero iOS.
 
@@ -98,12 +100,15 @@ C4Dynamic
   version code and every class name stay as they are. Alternative: rename the package for a
   side-by-side install, rejected by the operator and incompatible with the app's own URIs
   (ADR-0002).
-- **D3 — One origin option.** The streaming endpoint is derived (`wss://<origin>/stream`) and
-  the login/approval and attachment-upload URLs are returned by the server, so no second input
-  is needed. Alternative: separate API, streaming and auth options.
-- **D4 — HTTPS only, validated while patching.** The operator's server is reachable over HTTPS
-  and cleartext is blocked from API 28 onward (the target reports targetSdk 35), so a non-HTTPS address is refused rather than patched.
-  Alternative: also patch `network_security_config.xml`; deferred to a later change.
+- **D3 — One required origin plus an optional streaming override.** The streaming endpoint cannot
+  always be derived: the operator's server serves it over plain `ws://`, so a second *optional*
+  option carries the full WebSocket URL and an empty value falls back to `wss://<origin>/stream`.
+  The login/approval and attachment-upload URLs need no input (the server returns them).
+- **D4 — HTTPS for the API, scoped cleartext for streaming.** The API origin must be HTTPS; the
+  streaming override may be cleartext (`ws://`), in which case a `resourcePatch` adds exactly that
+  host to the cleartext allowlist in `network_security_config.xml` (ADR-0003). Alternatives:
+  require `wss://` (the operator's server does not serve the stream over TLS today) or allow
+  cleartext generally (wider than needed — the API is already on TLS).
 - **D5 — Two-pronged constant sweep.** Replace every `const-string` for the two endpoints *and*
   the `BuildConfig.BASE_API_URL` field initializer when present. Alternative: patch only the
   field (breaks if Kotlin inlined the Java constant) or only the literals (misses a field read).
@@ -114,13 +119,19 @@ C4Dynamic
   Alternative: accept and normalise a path; deferred.
 - **D7 — Evidence before implementation.** Enumerate the rewrite sites in smali first (tasks
   1.3–1.4), so the patch is written against the artifact.
+- **D8 — Cleartext only for the supplied streaming host.** When a cleartext streaming URL is given,
+  the patch adds exactly that host to the cleartext allowlist — nothing else changes (ADR-0003).
 
 ## Risks / Trade-offs
 
 - [Const inlining is unknown until the DEX is inspected] → sweep both forms (D5), confirm the
   sites in 1.4.
-- [The app holds the streaming URL as one constant with no path] → derive
-  `wss://<origin>/stream`, matching the documented server layout.
+- [The streaming scheme depends on the server] → the streaming URL is an explicit override with a
+  derived `wss://<origin>/stream` default, so a cleartext server works without weakening the API.
+- [A cleartext streaming host weakens transport security for that host] → the exception is scoped
+  to the single host from the option (ADR-0003); prefer `wss://` where the server can offer it.
+- [A resource patch edits compiled XML] → one `<domain>` entry is added to the existing cleartext
+  `domain-config`; device verification (4.8) confirms it in the patched APK.
 - [Login compatibility depends on the server implementing the login-session protocol] → altero
   implements it; device verification (4.2) proves it end to end.
 - [Installing over a Play-signed build fails on signature] → documented: uninstall the store
@@ -134,12 +145,13 @@ C4Dynamic
 
 Not applicable: a new patch with no data migration. Rollback is re-patching the stock APK, or
 reinstalling the store build; no server or account state is involved. Extending the option
-(paths, cleartext, a distinct streaming host) would be a new change that supersedes this one;
-the ADRs are immutable once accepted.
+reinstalling the store build; no server or account state is involved. Extending the *API* option
+(sub-paths, a cleartext API origin) would be a new change that supersedes this one; the ADRs are
+immutable once accepted.
 
 ## Open Questions
 
 - The four grilling items (single option, static rewrite, path handling, cosmetic links) were
   confirmed by the operator; the two ADRs are `Accepted`.
 - Whether `Compatibility` should pin `versionCodes` and ABI mappings, pending recon (task 1.2).
-- Whether a later server layout needs a separate streaming host — recorded, not in scope.
+- The streaming override settles the separate-streaming-endpoint question; a sub-path API origin remains out of scope.

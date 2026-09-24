@@ -2,121 +2,80 @@
 
 - Validated against: live framework/library/tool documentation
 - Validation date: 2026-09-24
-- Verdict: READY (post-revision)
+- Verdict: READY (post-revision, two rounds)
 
-Two read-only validator groups checked every task against live documentation (Context7 →
-jina/exa → official sources, one source URL per verdict). Both returned findings; the
-operator approved the revisions listed below, they were applied to `tasks.md` and the
-affected artifacts, and the revised tasks were then re-checked against the same
-authoritative sources (in-session, with the exact lines cited below) before this verdict was
-restated.
+Two read-only validator groups checked the original tasks against live documentation; the
+operator approved the revisions they listed, they were applied, and a second focused round then
+re-validated the claims added or changed by the streaming/cleartext revision. Both rounds'
+findings are recorded below; every verdict cites the source used, and each fix was re-checked
+against that source before the verdict was restated.
 
 ---
 
-## INVALID — resolved
+## Round 1 — findings and resolution
 
 ### 1.3 — bare `baksmali` covered one DEX of eight
 
-- Original: "Disassemble the APK with `baksmali` into `analysis/zotero/smali/` …"
-- **Fix applied**: task 1.3 now requires disassembling **every** DEX entry (a
-  `baksmali list dex` loop, or `apktool d`) and records that the target is multidex — 8 DEX
-  files — where a bare `baksmali d <apk>` silently yields `classes.dex` only.
-- **Re-checked**: `DexInputCommand.java` (v2.5.2) still resolves a single entry —
-  `container.getEntry("classes.dex")` with a first-entry fallback (lines 156–162) — and a
-  live `baksmali list dex` on the pinned APK returns `classes.dex` … `classes8.dex`.
-- **Evidence**: https://github.com/JesusFreke/smali/blob/v2.5.2/baksmali/src/main/java/org/jf/baksmali/DexInputCommand.java
+- Fix applied: task 1.3 requires every DEX entry (`baksmali list dex` loop or `apktool d`) and records the multidex fact.
+- Re-checked: `DexInputCommand.java` (v2.5.2) resolves a single entry (`container.getEntry("classes.dex")`, first-entry fallback); live `baksmali list dex` returns `classes.dex` … `classes8.dex`.
+- Evidence: https://github.com/JesusFreke/smali/blob/v2.5.2/baksmali/src/main/java/org/jf/baksmali/DexInputCommand.java
 
 ### 3.2 — CLI flag semantics
 
-- Original: "`list-patches -p <mpp> -pvo`"
-- **Fix applied**: the task now reads `list-patches --patches <mpp> -pvo`, noting that
-  `--patches` has no short form, `-p` is `--with-packages`, and `-pvo` is packages + versions
-  + options.
-- **Re-checked** in the command source: `names = ["--patches"]`, `names = ["-p", "--with-packages"]`,
-  `names = ["-v", "--with-versions"]`, `names = ["-o", "--with-options"]`.
-- **Evidence**: https://github.com/MorpheApp/morphe-desktop/blob/main/src/main/kotlin/app/morphe/desktop/command/ListPatchesCommand.kt (lines 36, 61–82)
+- Fix applied: `list-patches --patches <mpp> -pvo`, with `-p` = `--with-packages` and `-pvo` = packages + versions + options.
+- Re-checked in source: `names = ["--patches"]`, `["-p","--with-packages"]`, `["-v","--with-versions"]`, `["-o","--with-options"]`.
+- Evidence: https://github.com/MorpheApp/morphe-desktop/blob/main/src/main/kotlin/app/morphe/desktop/command/ListPatchesCommand.kt
 
 ### 4.1 — `-f` is not the input APK
 
-- Original: "Patch the original APK with the CLI, passing the option (`-O<key>=https://<test-host>`)"
-- **Fix applied**: task 4.1 now carries the exact invocation with the input APK as a trailing
-  positional argument, states that `-f` means "skip the version compatibility check", pins the
-  selection so no package-renaming patch can apply, and compares the `package:` line.
-- **Re-checked**: `names = ["-f", "--force"]`, `names = ["-O", "--options"]`,
-  `names = ["-o", "--out"]`, `names = ["--keystore"]`, `names = ["--exclusive"]`, and the APK
-  is `@CommandLine.Parameters(… arity = "1")`.
-- **Evidence**: https://github.com/MorpheApp/morphe-desktop/blob/main/src/main/kotlin/app/morphe/desktop/command/PatchCommand.kt (lines 75–247)
+- Fix applied: 4.1 carries the exact invocation with the APK as a trailing positional argument and `-f` described as "skip the version compatibility check".
+- Re-checked: `["-f","--force"]`, `["-O","--options"]`, `["-o","--out"]`, `["--keystore"]`, `["--exclusive"]`, and `@CommandLine.Parameters(arity = "1")`.
+- Evidence: https://github.com/MorpheApp/morphe-desktop/blob/main/src/main/kotlin/app/morphe/desktop/command/PatchCommand.kt
 
-### 4.1 — option values are type-sniffed
+### targetSdk figure
 
-- **Fix applied**: the invocation is recorded positionally; the constraint that a value ending
-  in `f` or `L` is parsed as a float or long is noted here so a test host never ends that way.
-- **Evidence**: https://github.com/MorpheApp/morphe-desktop/blob/main/src/main/kotlin/app/morphe/desktop/command/CommandUtils.kt
+- Fix applied: design, proposal and the research note now state that the released APK reports targetSdk 35 (the source tree declares 36), with cleartext blocked since API 28.
+- Evidence: live `aapt dump badging` on the pinned APK.
 
-### design / proposal / research note — `targetSdk`
+### DSL execution prerequisites (2.3–2.6)
 
-- **Fix applied**: `design.md` (Context and D4), `proposal.md` (grilling item 4) and the
-  morphe-ai research note now state that the released APK reports **targetSdk 35** (the source
-  tree declares 36) and that cleartext has been blocked since API 28; the HTTPS-only decision
-  is unchanged.
-- **Evidence**: live `aapt dump badging` on the pinned APK — `targetSdkVersion:'35'`,
-  `compileSdkVersion:'35'`.
-
-### 2.3 / 2.4 / 2.5 / 2.6 — DSL execution prerequisites
-
-- **Fix applied**: `category("…")` is specified as a call inside the patch block (not a
-  constructor argument); refusals throw `PatchException` with the reason; the rewrite is
-  specified as the patcher-native `string(...)` + `replaceInstruction(index,
-  BuilderInstruction21c(Opcode.CONST_STRING, …))` path, with the `morphe-patches-library`
-  dependency decision recorded in the task; 2.6 names the manifest `package` attribute as the
-  only renaming path.
-- **Re-checked**: `Patch.kt` has `fun category(name: String)` (line 577) and
-  `class PatchException` (824); `Option.kt` has `val required` and `val validator` (34–36) and
-  `fun stringOption` (197); the patcher API exposes
-  `replaceInstruction(MutableMethod, Int, BuilderInstruction)` (506); and the library's
-  `ReplaceStringPatch.kt` (package `app.morphe.patches.all.misc.string`) imports
-  `app.morphe.patcher.string` and `replaceInstruction` — confirming both the helper's location
-  and the option-aware path.
-- **Evidence**: https://github.com/MorpheApp/morphe-patcher/blob/v1.14.1/src/main/kotlin/app/morphe/patcher/patch/Patch.kt ; `.../Option.kt` ; `.../api/morphe-patcher.api` ; https://github.com/MorpheApp/morphe-patches-library/blob/main/patch-library/src/main/kotlin/app/morphe/patches/all/misc/string/ReplaceStringPatch.kt
+- Fix applied: `category("…")` inside the block; `PatchException` for reason-carrying refusals; the patcher-native rewrite path; the manifest `package` attribute named as the only renaming path.
+- Re-checked: `Patch.kt` (577, 824), `Option.kt` (34–36, 197), `morphe-patcher.api` (506), `ReplaceStringPatch.kt` imports.
+- Evidence: https://github.com/MorpheApp/morphe-patcher/blob/v1.14.1/src/main/kotlin/app/morphe/patcher/patch/Patch.kt ; `.../Option.kt` ; `.../api/morphe-patcher.api`
 
 ---
 
-## VALID — confirmed
+## Round 2 — the streaming/cleartext revision
 
-### 2.3 / 2.5 / 2.6
+### A. (2.7) optional option with a patch-time fallback — **VALID**
 
-- `bytecodePatch`, `stringOption` and `Compatibility`/`AppTarget`/`ApkFileType`/`SupportedAbi`/
-  `versionCodes` exist as used; the patcher exposes no class-renaming API, and the only rename
-  path is the manifest `package` attribute (`ArsclibResourceCoder` → `PackageRenamingProcessor`),
-  so ADR-0002 is enforceable.
-  - **Evidence**: https://github.com/MorpheApp/morphe-patcher/blob/v1.14.1/src/main/kotlin/app/morphe/patcher/patch/Compatibility.kt ; `.../resource/coder/ArsclibResourceCoder.kt` ; `.../resource/processor/PackageRenamingProcessor.kt`
+- `stringOption(key, default = null, values = null, title, description, required = false, validator)`. `required` defaults to false, and an unset optional option returns its default rather than throwing; "not supplied" is therefore `null` (or an explicitly empty default), so the derivation belongs to the patch code. The implementation handles both (`optionValue?.trim().orEmpty()`).
+- Evidence: https://github.com/MorpheApp/morphe-patcher/blob/main/src/main/kotlin/app/morphe/patcher/patch/Option.kt ; https://github.com/MorpheApp/morphe-patches/blob/main/patches/src/main/kotlin/app/morphe/patches/all/misc/installer/ChangeInstallerSource.kt
 
-### 2.5 — constant inlining
+### B. (2.8) `resourcePatch` editing the compiled resource XML — **VALID**
 
-- An AGP `buildConfigField` string is a `public static final String`, a JLS constant variable
-  inlined at use sites, so the two-pronged sweep (literals plus the field value) is the correct
-  handling.
-  - **Evidence**: https://docs.oracle.com/javase/specs/jls/se21/html/jls-13.html#jls-13.4.9
+- `resourcePatch(...)` exists; `ResourcePatchContext.document("res/xml/network_security_config.xml")` returns a real DOM `Document` that is written back on `close()`, so `use { }` is required. A bundle may hold both a bytecode patch and a resource patch: both contexts are decoded and both run, ordered by dependency and then by name — there is no type-based ordering, so `dependsOn` is the only explicit lever.
+- The library helpers (`getNode`/`adoptChild`) would require `app.morphe:morphe-patches-library`; the implementation deliberately uses plain JDK DOM, so **no dependency was added** (recorded in task 2.5).
+- Evidence: https://github.com/MorpheApp/morphe-patcher/blob/main/src/main/kotlin/app/morphe/patcher/patch/ResourcePatchContext.kt ; `.../util/Document.kt` ; `.../Patcher.kt` ; https://github.com/MorpheApp/morphe-patches/blob/main/patches/src/main/kotlin/app/morphe/patches/all/misc/network/OverrideCertificatePinningPatch.kt
 
-### 1.2 / 4.1 — identity check
+### C. (spec scenario + ADR-0003) Android cleartext semantics — **VALID**
 
-- `aapt dump badging` prints `package: name='org.zotero.android' versionCode='247'
-  versionName='1.0.0-247'`, so diffing the `package:` line before and after patching is a sound
-  identity check.
-  - **Evidence**: live run on the pinned APK; https://developer.android.com/tools/aapt2
+- The opt-in form is `<domain-config cleartextTrafficPermitted="true"><domain includeSubdomains="true">host</domain></domain-config>`; cleartext is off by default from API 28, and OkHttp enforces the policy (`RealRoutePlanner` → `Platform.isCleartextTrafficPermitted` → `NetworkSecurityPolicy`).
+- Confirmed in the pinned artifact: `classes7/okhttp3/internal/connection/RealRoutePlanner.smali` carries that check and the app opens its WebSocket through OkHttp — so the `ws://` override in the operator's deployment needs exactly the allowlist entry the resource patch adds.
+- Evidence: https://developer.android.com/privacy-and-security/security-config ; https://github.com/square/okhttp/blob/master/okhttp/src/commonJvmAndroid/kotlin/okhttp3/internal/connection/RealRoutePlanner.kt ; https://github.com/square/okhttp/blob/master/okhttp/src/androidMain/kotlin/okhttp3/internal/platform/AndroidPlatform.kt
 
-### 3.1 — build output
+### D. (4.1) the CLI reads a BKS keystore — **VALID**, plus one fix (applied)
 
-- `./gradlew buildAndroid` produces `patches/build/libs/patches-1.0.0.mpp` — verified live in
-  the toolchain stack.
+- The toolchain is BKS-first: the patcher's signer constructs `KeyStore.getInstance("BKS", BouncyCastleProvider.PROVIDER_NAME)` and installs BouncyCastle itself, and the CLI's `KeystoreImporter.ensureBks` byte-sniffs the file and returns an already-BKS keystore unchanged. The operator's `Morphe.keystore` is BKS v2 with alias `Morphe` and an empty store password — **no conversion is required**.
+- **Fix applied (the round's only NEEDS_FIX):** the 4.1 command omitted the enable flag. `-O/--options` is declared inside the enable-selection group and the CLI applies options only for enabled selections, so 4.1 now passes `-e "<patch name>"` (with the real `server`/`streaming` keys) before the option values.
+- Evidence: https://github.com/MorpheApp/morphe-patcher/blob/main/src/main/kotlin/app/morphe/patcher/apk/ApkSigner.kt ; https://github.com/MorpheApp/morphe-desktop/blob/main/src/main/kotlin/app/morphe/engine/util/KeystoreImporter.kt ; `.../desktop/command/PatchCommand.kt`
 
 ---
 
 ## Post-revision gate
 
 - `openspec validate custom-sync-server --strict` → **Change 'custom-sync-server' is valid**
-- Residual-reference sweep over the change's artifacts → no stale invalid detail remains (the
-  only hits are the quoted originals recorded in this file).
+- Residual-reference sweep over the change's artifacts → no stale invalid detail remains.
 
 ---
 

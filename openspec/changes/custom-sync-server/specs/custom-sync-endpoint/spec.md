@@ -13,11 +13,23 @@ The patched application MUST direct every synchronisation request to the configu
 - **WHEN** the patched app synchronises a library
 - **THEN** every metadata request goes to `zotero.example.org` and none goes to `api.zotero.org`
 
-#### Scenario: Live updates use the chosen server's stream
+#### Scenario: Live updates use the derived stream by default
 
-- **GIVEN** the patched app is signed in to the operator's server
+- **GIVEN** the patch applied with the API origin `https://zotero.example.org` and no streaming override
 - **WHEN** the app opens its live-update connection
 - **THEN** the connection is made to `wss://zotero.example.org/stream`
+
+#### Scenario: Live updates use an explicit streaming override
+
+- **GIVEN** the patch applied with the streaming override `ws://altero.myhut.live/stream`
+- **WHEN** the app opens its live-update connection
+- **THEN** the connection is made to `ws://altero.myhut.live/stream`, not to a derived address
+
+#### Scenario: A cleartext streaming host is made permitted
+
+- **GIVEN** the patch applied with a cleartext streaming override
+- **WHEN** the patched APK's network security configuration is read
+- **THEN** that host is listed as permitted for cleartext traffic
 
 #### Scenario: Account linking opens the server's own approval page
 
@@ -35,9 +47,9 @@ The patched application MUST direct every synchronisation request to the configu
 ### Requirement: Patch input contract
 
 Feature: Custom sync endpoint
-Rule: The patch accepts exactly one server address and refuses anything it cannot honour, before an APK is produced.
+Rule: The patch accepts one API origin and one optional streaming URL, and refuses anything it cannot honour, before an APK is produced.
 
-The patch MUST accept exactly one origin and MUST refuse, while patching, any value it cannot honour.
+The patch MUST accept one HTTPS API origin and one optional streaming URL, and MUST refuse, while patching, any value it cannot honour.
 
 #### Scenario: Bare host is normalised
 
@@ -51,11 +63,11 @@ The patch MUST accept exactly one origin and MUST refuse, while patching, any va
 - **WHEN** patching runs
 - **THEN** the trailing slash is removed and patching succeeds
 
-#### Scenario: Non-HTTPS address is refused
+#### Scenario: Non-HTTPS API origin is refused
 
 - **GIVEN** the option set to `http://zotero.example.org`
 - **WHEN** patching runs
-- **THEN** patching stops with a message that an HTTPS address is required
+- **THEN** patching stops with a message that an HTTPS API origin is required
 - **AND** no patched APK is produced
 
 #### Scenario: Address carrying a path is refused
@@ -69,6 +81,18 @@ The patch MUST accept exactly one origin and MUST refuse, while patching, any va
 - **GIVEN** the patch selected but its option left empty
 - **WHEN** patching runs
 - **THEN** patching stops with a message naming the option
+
+#### Scenario: A cleartext streaming URL is accepted
+
+- **GIVEN** the streaming option set to `ws://altero.myhut.live/stream`
+- **WHEN** patching runs
+- **THEN** patching succeeds, the app connects to that address, and its host is permitted for cleartext traffic
+
+#### Scenario: The streaming URL may carry a path
+
+- **GIVEN** the streaming option set to `wss://zotero.example.org/stream`
+- **WHEN** patching runs
+- **THEN** patching succeeds with that exact URL
 
 ### Requirement: Application identity preserved
 
