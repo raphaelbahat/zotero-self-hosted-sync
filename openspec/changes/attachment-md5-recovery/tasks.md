@@ -14,15 +14,15 @@
 
 ## 3. Build and artifact verification
 
-- [ ] 3.1 Build with `./gradlew buildAndroid`; list the bundle and confirm the new patch appears.
-- [ ] 3.2 Patch the pinned APK with the patch selected; confirm in the artifact that the guard now invokes the extension helper and that the helper class is present in the merged DEX.
-- [ ] 3.3 Confirm the artifact's second comparison (`backendMd5`) and every other class are unchanged, and that the reader holds no remaining `Intrinsics.areEqual` against the shared constant at the patched site.
+- [x] 3.1 Build with `./gradlew buildAndroid`; the bundle lists the new patch as `Enabled: true`.
+- [x] 3.2 Patch the pinned APK: the patch reports `Applied`, and the artifact shows the guard invoking `AttachmentMd5.unusable(Ljava/lang/String;Ljava/io/File;)Z` in place of `Intrinsics.areEqual`, with `move-result v3` and `if-eqz v3, :cond_134` intact and the app's own repair (`FileStore.md5` → `RItemField.setValue`) left to do the work. The helper class is in the merged DEX and identity is unchanged (`org.zotero.android`, `versionCode` 247).
+- [x] 3.3 Confirmed unchanged: `areEqual` count in the reader fell 2→1 (the `backendMd5` comparison is untouched), the shared `const-string "null"` is still present once, `FileStore->md5` is still there once, and the sibling mtime patch is intact (`toLongOrNull` 0, `AttachmentMtime->mtimeOrNow` 1).
 
 ## 4. Device verification (needs the device)
 
-- [ ] 4.1 Install and sync: confirm the client logs a 32-character digest for the attachment, that the authorize request answers `2xx` instead of `400 md5 not provided`, and that the file bytes are uploaded.
-- [ ] 4.2 Confirm the attachment registers on the server (`MarkAttachmentUploadedDbRequest`) and appears on the desktop client, and that a later sync neither resends an empty digest nor logs the failure.
+- [x] 4.1 Install and sync: the client logs a real digest (`md5=091bf1dcd34ec968623b6af08709b45a`, was empty), the authorize request answers **200** (was `400 md5 not provided`), the upload request is issued to `/storage/upload/<key>`, and the register step answers `204` — which the server only returns after re-reading the stored bytes and matching them against the authorized length and digest. `md5 not provided`: 0 occurrences.
+- [x] 4.2 Confirmed: the attachment registers on the server and is present on desktop Zotero. A later sync, measured in its own window, makes **0** requests to `Z5B8C2J9/file`, logs no `file needs upload`, and no upload-path error — so no empty digest is resent and the failure does not recur.
 
 ## 5. Hygiene
 
-- [ ] 5.1 Run `openspec validate attachment-md5-recovery --strict` and fix anything it reports.
+- [x] 5.1 `openspec validate attachment-md5-recovery --strict` → "Change 'attachment-md5-recovery' is valid".
