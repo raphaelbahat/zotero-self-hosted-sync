@@ -1,3 +1,9 @@
+## [1.0.0-dev.2](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2026-09-24)
+
+### ✨ New Features
+
+* **patches:** add on-demand logging and attachment upload recovery ([01b0fc2](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/01b0fc25f6922bd71e88955a26c988ce47b77943))
+
 ## 1.0.0-dev.1 (2026-09-24)
 
 ### 🐛 Bug Fixes
