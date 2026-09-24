@@ -13,7 +13,7 @@ The Zotero Android application compiles its API host into the build and exposes 
 
 > The server itself must implement the Zotero Web API and streaming API (e.g. [altero](https://github.com/eseifert/altero)). Only the official Android app is patched; the server is not touched.
 
-### How to use these patches
+## How to use these patches
 
 Click here to add these patches to Morphe: https://morphe.software/add-source?github=raphaelbahat/zotero-self-hosted-sync
 
@@ -24,17 +24,13 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 
 > **⚠️ One patch here is a workaround**
 >
-> `Recover attachments with an unusable modification time` exists because the app's own upload
-> reader discards an attachment whose stored `mtime` it cannot parse instead of repairing it, so
-> the file would never upload. It goes when the client handles that itself; everything else in
-> this bundle is durable. In the **Default** column, `✅` means the patch is applied when you
-> patch the app, and `—` means you have to switch it on yourself.
+> `Recover attachments with an unusable modification time` exists because the Zotero Android app
+> discards an attachment whose stored `mtime` it cannot parse instead of repairing it, so the file
+> would never upload. It goes once the app handles that itself — the report is
+> [zotero/zotero-android#351](https://github.com/zotero/zotero-android/issues/351).
 >
-> The upload workarounds that used to sit beside it are gone: altero now answers the upload form
-> the mobile clients ask for and accepts the multipart body they send
-> ([eseifert/altero#13](https://github.com/eseifert/altero/issues/13), released), and it serves
-> `md5`/`mtime` as `null` on an attachment with no file, which is the value the client's own
-> repair path was written for.
+> In the **Default** column, `✅` means the patch is applied when you patch the app, and `—`
+> means you have to switch it on yourself.
 <details open>
 <summary>📦 Zotero&nbsp;&nbsp;•&nbsp;&nbsp;4 patches</summary>
 <br>

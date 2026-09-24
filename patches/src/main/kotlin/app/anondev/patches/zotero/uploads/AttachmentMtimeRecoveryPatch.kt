@@ -43,9 +43,9 @@ private const val LONG_BOX_TYPE = "Ljava/lang/Long;"
 @Suppress("unused")
 val attachmentMtimeRecoveryPatch = bytecodePatch(
     name = "Recover attachments with an unusable modification time",
-    description = "Temporary workaround: uploads attachments whose stored modification time " +
-        "cannot be parsed, instead of skipping them forever. Without this, an attachment whose " +
-        "mtime is empty never uploads its file.",
+    description = "Temporary workaround: the Zotero Android app discards an attachment whose " +
+        "stored modification time it cannot parse, instead of repairing it, so the file is " +
+        "never uploaded. Reported upstream: https://github.com/zotero/zotero-android/issues/351",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZOTERO)
