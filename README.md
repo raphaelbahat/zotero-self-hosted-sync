@@ -93,4 +93,4 @@ See the [Morphe documentation](https://github.com/MorpheApp/morphe-documentation
 
 ## 📜 License
 
-Paresh Zotero patches are licensed under the [GNU General Public License v3.0](LICENSE)
+Anondev Zotero Patches are licensed under the [GNU General Public License v3.0](LICENSE)

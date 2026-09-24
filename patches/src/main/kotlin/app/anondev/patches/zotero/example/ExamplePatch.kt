@@ -1,10 +1,10 @@
-package app.paresh.patches.zotero.example
+package app.anondev.patches.zotero.example
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
-import app.paresh.patches.zotero.shared.Constants.COMPATIBILITY_EXAMPLE
+import app.anondev.patches.zotero.shared.Constants.COMPATIBILITY_EXAMPLE
 
-private const val EXTENSION_CLASS = "Lapp/paresh/patches/zotero/extension/ExamplePatch;"
+private const val EXTENSION_CLASS = "Lapp/anondev/patches/zotero/extension/ExamplePatch;"
 
 @Suppress("unused")
 val examplePatch = bytecodePatch(

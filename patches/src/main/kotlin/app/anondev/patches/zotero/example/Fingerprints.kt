@@ -1,4 +1,4 @@
-package app.paresh.patches.zotero.example
+package app.anondev.patches.zotero.example
 
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.InstructionLocation.MatchAfterImmediately

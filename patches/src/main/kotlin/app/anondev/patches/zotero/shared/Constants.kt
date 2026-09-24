@@ -1,4 +1,4 @@
-package app.paresh.patches.zotero.shared
+package app.anondev.patches.zotero.shared
 
 import app.morphe.patcher.patch.ApkFileType
 import app.morphe.patcher.patch.AppTarget

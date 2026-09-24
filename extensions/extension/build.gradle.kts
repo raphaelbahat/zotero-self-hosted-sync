@@ -3,5 +3,5 @@ extension {
 }
 
 android {
-    namespace = "app.paresh.patches.zotero.extension"
+    namespace = "app.anondev.patches.zotero.extension"
 }

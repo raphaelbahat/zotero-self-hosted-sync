@@ -1,4 +1,4 @@
-package app.paresh.patches.zotero.extension;
+package app.anondev.patches.zotero.extension;
 
 @SuppressWarnings("unused")
 public class ExamplePatch {
