@@ -20,9 +20,9 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0-dev.2](https://github.com/raphaelbahat/zotero-self-hosted-sync/releases/tag/v1.0.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;4 patches total
+> **[v1.0.0-dev.3](https://github.com/raphaelbahat/zotero-self-hosted-sync/releases/tag/v1.0.0-dev.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
 <details open>
-<summary>📦 Zotero&nbsp;&nbsp;•&nbsp;&nbsp;4 patches</summary>
+<summary>📦 Zotero&nbsp;&nbsp;•&nbsp;&nbsp;7 patches</summary>
 <br>
 
 **🎯 Supported versions:**
@@ -32,10 +32,13 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
+| [Accept upload authorization that carries no upload form](#accept-upload-authorization-that-carries-no-upload-form) | Uploads the file when the sync server authorizes an upload without an S3 form envelope. Without this, an authorization the server completed is thrown away as a parse error and the attachment never uploads. |  |
 | [Custom sync server](#custom-sync-server) | Redirects Zotero's sync API and live-update stream to your own server. | • Server address<br>• Streaming address (optional) |
 | [Custom sync server: allow cleartext streaming](#custom-sync-server-allow-cleartext-streaming) | Adds the chosen streaming host to the app's cleartext allow-list when the stream URL is ws:// or http://. | • Server address<br>• Streaming address (optional) |
 | [Enable verbose logging](#enable-verbose-logging) | Plants Timber's debug tree so the app's own log lines reach logcat. Diagnostics only — expect a lot of output. |  |
+| [Recover attachments with an unusable MD5](#recover-attachments-with-an-unusable-md5) | Uploads attachments whose stored MD5 is empty or malformed, instead of sending an unusable digest the server rejects. Without this, the attachment's file never uploads and never reaches other devices. |  |
 | [Recover attachments with an unusable modification time](#recover-attachments-with-an-unusable-modification-time) | Uploads attachments whose stored modification time cannot be parsed, instead of skipping them forever. Without this, an attachment whose mtime is empty never uploads its file. |  |
+| [Send attachment uploads as the file itself](#send-attachment-uploads-as-the-file-itself) | Sends an attachment upload without the multipart form around it when the server authorized the upload without an S3 form. Workaround for servers that take the bytes themselves; uploads that carry a form are unaffected. |  |
 
 </details>
 
