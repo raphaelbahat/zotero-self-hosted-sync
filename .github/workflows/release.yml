@@ -66,6 +66,16 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          fetch-tags: true
+
+      # semantic-release reads every branch .releaserc configures — it asks `git tag --merged
+      # <branch>` about each to decide which one is releasing — so dev has to resolve in this
+      # clone even though the release is cut from main. Without this the run dies on
+      # "fatal: malformed object name dev" after the merge has already been pushed.
+      - name: Fetch the other release branches
+        run: |
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --tags
+          git branch --force dev origin/dev
 
       - name: Setup Java
         uses: actions/setup-java@v6.0.1
