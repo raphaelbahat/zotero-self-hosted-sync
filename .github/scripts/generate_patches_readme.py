@@ -84,19 +84,19 @@ STYLED_PREFIXES = (
 
 #: Shown above the tables whenever the bundle carries a temporary workaround, so the mark in
 #: the description is not the only thing telling a reader the patch will go away.
-TEMPORARY_NOTICE = """> **⚠️ Temporary workarounds**
+TEMPORARY_NOTICE = """> **⚠️ One patch here is a workaround**
 >
-> Most patches in this bundle work around a defect in the app or in the sync server rather than
-> adding a feature, and each is removed once the fix it depends on ships. They are marked
-> **⏳ Temporary workaround** in the tables below; a patch without that mark is durable. In the
-> **Default** column, `✅` means the patch is applied when you patch the app, and `—` means you
-> have to switch it on yourself.
+> `Recover attachments with an unusable modification time` exists because the app's own upload
+> reader discards an attachment whose stored `mtime` it cannot parse instead of repairing it, so
+> the file would never upload. It goes when the client handles that itself; everything else in
+> this bundle is durable. In the **Default** column, `✅` means the patch is applied when you
+> patch the app, and `—` means you have to switch it on yourself.
 >
-> The four marked ones come from two places: the upload authorization and transfer steps, where
-> a server that hands out no upload form is not understood ([eseifert/altero#13]
-> (https://github.com/eseifert/altero/issues/13)), and the app's own upload reader, which
-> discards an attachment whose stored `md5` or `mtime` it cannot use. All four go away when those
-> are dealt with."""
+> The upload workarounds that used to sit beside it are gone: altero now answers the upload form
+> the mobile clients ask for and accepts the multipart body they send
+> ([eseifert/altero#13](https://github.com/eseifert/altero/issues/13), released), and it serves
+> `md5`/`mtime` as `null` on an attachment with no file, which is the value the client's own
+> repair path was written for."""
 
 
 def styled_description(text):

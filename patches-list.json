@@ -1,34 +1,7 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0",
+  "version": "1.0.1-dev.1",
   "patches": [
-    {
-      "name": "Accept upload authorization that carries no upload form",
-      "description": "Temporary workaround: uploads the file when the sync server authorizes an upload without an S3 form envelope. Without this, an authorization the server completed is thrown away as a parse error and the attachment never uploads.",
-      "default": true,
-      "category": "Sync",
-      "dependencies": [],
-      "compatiblePackages": [
-        {
-          "packageName": "org.zotero.android",
-          "name": "Zotero",
-          "description": null,
-          "apkFileType": "APK",
-          "appIconColor": "#CC2936",
-          "signatures": null,
-          "targets": [
-            {
-              "version": "1.0.0-247",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": null,
-              "description": null
-            }
-          ]
-        }
-      ],
-      "options": []
-    },
     {
       "name": "Custom sync server",
       "description": "Redirects Zotero's sync API and live-update stream to your own server.",
@@ -149,62 +122,8 @@
       "options": []
     },
     {
-      "name": "Recover attachments with an unusable MD5",
-      "description": "Temporary workaround: uploads attachments whose stored MD5 is empty or malformed, instead of sending an unusable digest the server rejects. Without this, the attachment's file never uploads and never reaches other devices.",
-      "default": true,
-      "category": "Sync",
-      "dependencies": [],
-      "compatiblePackages": [
-        {
-          "packageName": "org.zotero.android",
-          "name": "Zotero",
-          "description": null,
-          "apkFileType": "APK",
-          "appIconColor": "#CC2936",
-          "signatures": null,
-          "targets": [
-            {
-              "version": "1.0.0-247",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": null,
-              "description": null
-            }
-          ]
-        }
-      ],
-      "options": []
-    },
-    {
       "name": "Recover attachments with an unusable modification time",
       "description": "Temporary workaround: uploads attachments whose stored modification time cannot be parsed, instead of skipping them forever. Without this, an attachment whose mtime is empty never uploads its file.",
-      "default": true,
-      "category": "Sync",
-      "dependencies": [],
-      "compatiblePackages": [
-        {
-          "packageName": "org.zotero.android",
-          "name": "Zotero",
-          "description": null,
-          "apkFileType": "APK",
-          "appIconColor": "#CC2936",
-          "signatures": null,
-          "targets": [
-            {
-              "version": "1.0.0-247",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": null,
-              "description": null
-            }
-          ]
-        }
-      ],
-      "options": []
-    },
-    {
-      "name": "Send attachment uploads as the file itself",
-      "description": "Temporary workaround: sends an attachment upload without the multipart form around it when the server authorized the upload without an S3 form. For servers that take the bytes themselves; uploads that carry a form are unaffected.",
       "default": true,
       "category": "Sync",
       "dependencies": [],
