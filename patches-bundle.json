@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-09-24T21:22:02",
-  "description": "## [1.0.2](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.1...v1.0.2) (2026-09-24)\n\n### 🐛 Bug Fixes\n\n* **ci:** dispatch the release on main, because semantic-release reads the event ref ([d7d2ad4](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/d7d2ad4133e78cead0c59fd7764a75dd3e737192))\n* **ci:** let the release job see dev, which semantic-release asks about ([f67ebf0](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/f67ebf0732612637ba3d05c23a6200f4c1d58032))\n* **ci:** merge dev into main and release in one workflow, without a pull request ([f650628](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/f65062813b057ae3b975b7c867cfc939f2fb0d33))\n* **ci:** release from main only, so a dev push yields a stable version ([a4676fa](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/a4676fa34a0b37968ca0b7bae867423478f82ccb))",
-  "download_url": "https://github.com/raphaelbahat/zotero-self-hosted-sync/releases/download/v1.0.2/patches-1.0.2.mpp",
+  "created_at": "2026-09-24T21:32:22",
+  "description": "## [1.0.3](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.2...v1.0.3) (2026-09-24)\n\n### 🐛 Bug Fixes\n\n* **patches:** say what the remaining workaround is for, and link its report ([4ca50d5](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/4ca50d5881c7b59fc01143d9801aa434deded49a))",
+  "download_url": "https://github.com/raphaelbahat/zotero-self-hosted-sync/releases/download/v1.0.3/patches-1.0.3.mpp",
   "signature_download_url": "",
-  "version": "1.0.2"
+  "version": "1.0.3"
 }

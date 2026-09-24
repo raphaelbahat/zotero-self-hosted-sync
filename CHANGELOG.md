@@ -1,3 +1,9 @@
+## [1.0.3](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.2...v1.0.3) (2026-09-24)
+
+### 🐛 Bug Fixes
+
+* **patches:** say what the remaining workaround is for, and link its report ([4ca50d5](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/4ca50d5881c7b59fc01143d9801aa434deded49a))
+
 ## [1.0.2](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.1...v1.0.2) (2026-09-24)
 
 ### 🐛 Bug Fixes
