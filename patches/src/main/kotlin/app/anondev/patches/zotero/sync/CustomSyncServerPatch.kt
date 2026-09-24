@@ -60,6 +60,22 @@ val customSyncServerPatch = bytecodePatch(
         // R3: the single live-update literal.
         val streamingRewrites = rewriteConstString(STREAM_LITERAL, streamingUrl)
 
+        // R4: the app appends "&app=1" to the login URL the server returns. Against a server
+        // whose login URL has no query string that makes the path "/login&app=1", which the
+        // server answers 404 (measured; see ADR-0004). Replacing the literal with an empty
+        // string opens the URL exactly as returned. Absence is tolerated: a future target may
+        // stop appending, and the goal is the verbatim URL rather than the rewrite itself.
+        rewriteConstString(LOGIN_APP_PARAM_LITERAL, "")
+
+        // R5: the deletion precondition header, corrected everywhere it appears — the deletion
+        // write and the two read paths that carried the same typo (see D10).
+        if (rewriteConstString(DELETE_PRECONDITION_HEADER_MISSPELLED, DELETE_PRECONDITION_HEADER) == 0) {
+            throw PatchException(
+                "Custom sync server: found no '$DELETE_PRECONDITION_HEADER_MISSPELLED' string in " +
+                    "the APK. The patch targets Zotero 1.0.0-247.",
+            )
+        }
+
         // R2: the BuildConfig field initializer. The field is present but unreferenced in this
         // artifact (no `sget-object` reads), so it cannot affect routing at runtime. The
         // patcher DOES expose field-value mutation — `MutableField.setInitialValue` plus
@@ -131,6 +147,7 @@ private fun BytecodePatchContext.rewriteConstString(from: String, to: String): I
  *
  * @return true when the field was rewritten, false when the class or field is absent.
  */
+
 private fun BytecodePatchContext.rewriteBuildConfigBaseApiUrl(origin: String): Boolean {
     val buildConfigClass = mutableClassDefByOrNull(BUILD_CONFIG_CLASS) ?: return false
     val field = buildConfigClass.staticFields

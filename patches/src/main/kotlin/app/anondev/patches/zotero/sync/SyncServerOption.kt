@@ -69,6 +69,15 @@ internal const val API_LITERAL_WITH_SLASH = "https://api.zotero.org/"
 /** The live-update literal (1 site: `websocket/WebSocketController`). */
 internal const val STREAM_LITERAL = "wss://stream.zotero.org"
 
+/** The app appends this to the server's login URL; against a queryless URL it corrupts the path. */
+internal const val LOGIN_APP_PARAM_LITERAL = "&app=1"
+
+/** The precondition header the app ships misspelled, at three sites: the deletion write and two read paths. Strict servers see no precondition on the write (428). */
+internal const val DELETE_PRECONDITION_HEADER_MISSPELLED = "If-Modified-Since-Version"
+
+/** The name the v3 write protocol defines. */
+internal const val DELETE_PRECONDITION_HEADER = "If-Unmodified-Since-Version"
+
 /** `BuildConfig.BASE_API_URL`, the surviving (but unreferenced) constant field. */
 internal const val BUILD_CONFIG_CLASS = "Lorg/zotero/android/BuildConfig;"
 internal const val BUILD_CONFIG_BASE_API_URL_FIELD = "BASE_API_URL"
