@@ -1,6 +1,6 @@
 # 🧩 Zotero self-hosted sync
 
-Morphe patches that point the **Zotero Android app** at a **self-hosted Zotero sync server** (such as [altero](https://altero.run/)) instead of `zotero.org`.
+**Patches for Morphe** that point the **Zotero Android app** at a **self-hosted Zotero sync server** (such as [altero](https://altero.run/)) instead of `zotero.org`.
 
 ## ❓ About
 
@@ -56,3 +56,18 @@ See the [Morphe documentation](https://github.com/MorpheApp/morphe-documentation
 ## 📜 License
 
 Anondev Zotero Patches are licensed under the [GNU General Public License v3.0](LICENSE)
+
+## ⚖️ Not affiliated
+
+This project is not affiliated with, endorsed by, or sponsored by the Corporation for Digital
+Scholarship or the Zotero project. “Zotero” is a registered trademark of the Corporation for
+Digital Scholarship, and is used here only to name the application these patches apply to.
+
+It distributes **only patch code** — the `.mpp` bundle in each release — and never the Zotero
+application, its source, or a patched APK. The Zotero software is licensed under the AGPLv3, and
+Zotero's trademarks policy states that the AGPL grants no right to use the Zotero name in
+connection with derivative works (<https://www.zotero.org/trademark>).
+
+What you build with these patches is for your own use on a copy of the app you already have. If
+you instead publish a patched APK, you are distributing an AGPLv3 derivative work and take on the
+obligations that go with it — including the one above.
