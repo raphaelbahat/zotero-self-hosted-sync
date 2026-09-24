@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-09-24T19:15:50",
-  "description": "## [1.0.0-dev.4](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2026-09-24)\n\n### 🐛 Bug Fixes\n\n* **ci:** let the release workflow reach the API and the PR workflow open its pull request ([0e640ab](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/0e640abfdb441cfbfba5be73c3850fd69fd1fc6a))",
-  "download_url": "https://github.com/raphaelbahat/zotero-self-hosted-sync/releases/download/v1.0.0-dev.4/patches-1.0.0-dev.4.mpp",
+  "created_at": "2026-09-24T19:20:38",
+  "description": "## [1.0.0-dev.5](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.0-dev.4...v1.0.0-dev.5) (2026-09-24)\n\n### 🐛 Bug Fixes\n\n* **ci:** skip build attestation on a private repository ([03b1b12](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/03b1b1279edf68cdd583de82cbf84474def01d47)), closes [#2](https://github.com/raphaelbahat/zotero-self-hosted-sync/issues/2)",
+  "download_url": "https://github.com/raphaelbahat/zotero-self-hosted-sync/releases/download/v1.0.0-dev.5/patches-1.0.0-dev.5.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.4"
+  "version": "1.0.0-dev.5"
 }

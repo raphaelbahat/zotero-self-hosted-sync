@@ -1,3 +1,9 @@
+## [1.0.0-dev.5](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.0-dev.4...v1.0.0-dev.5) (2026-09-24)
+
+### 🐛 Bug Fixes
+
+* **ci:** skip build attestation on a private repository ([03b1b12](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/03b1b1279edf68cdd583de82cbf84474def01d47)), closes [#2](https://github.com/raphaelbahat/zotero-self-hosted-sync/issues/2)
+
 ## [1.0.0-dev.4](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2026-09-24)
 
 ### 🐛 Bug Fixes
