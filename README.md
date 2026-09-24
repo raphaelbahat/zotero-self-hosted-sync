@@ -1,6 +1,6 @@
 # 🧩 Zotero self-hosted sync
 
-Morphe patches that point the **Zotero Android app** at a **self-hosted Zotero sync server** (such as [altero](https://altero.run/)) instead of `zotero.org`.
+**Patches for Morphe** that point the **Zotero Android app** at a **self-hosted Zotero sync server** (such as [altero](https://altero.run/)) instead of `zotero.org`.
 
 ## ❓ About
 
@@ -20,66 +20,28 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
+> **[v1.0.0-dev.5](https://github.com/raphaelbahat/zotero-self-hosted-sync/releases/tag/v1.0.0-dev.5)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
+<details open>
+<summary>📦 Zotero&nbsp;&nbsp;•&nbsp;&nbsp;7 patches</summary>
+<br>
 
-<!-- Do not modify this section by hand. The patch list is generated when release.yml creates a new release.
-     
-     If you wish for the patches list to be collapsed, then remove the word 'EXPANDED' from the comment tag above.
+**🎯 Supported versions:**
 
-     If you wish to manually keep this list updated then remove the PATCHES_START and PATCHES_END 
-     comment blocks entirely. -->
+| 1.0.0-247 |
+| :---: |
 
-#### A list of your patches will automatically be shown here after your first patches release is created.
+| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
+|----------|----------------|-----------|
+| [Accept upload authorization that carries no upload form](#accept-upload-authorization-that-carries-no-upload-form) | Uploads the file when the sync server authorizes an upload without an S3 form envelope. Without this, an authorization the server completed is thrown away as a parse error and the attachment never uploads. |  |
+| [Custom sync server](#custom-sync-server) | Redirects Zotero's sync API and live-update stream to your own server. | • Server address<br>• Streaming address (optional) |
+| [Custom sync server: allow cleartext streaming](#custom-sync-server-allow-cleartext-streaming) | Adds the chosen streaming host to the app's cleartext allow-list when the stream URL is ws:// or http://. | • Server address<br>• Streaming address (optional) |
+| [Enable verbose logging](#enable-verbose-logging) | Plants Timber's debug tree so the app's own log lines reach logcat. Diagnostics only — expect a lot of output. |  |
+| [Recover attachments with an unusable MD5](#recover-attachments-with-an-unusable-md5) | Uploads attachments whose stored MD5 is empty or malformed, instead of sending an unusable digest the server rejects. Without this, the attachment's file never uploads and never reaches other devices. |  |
+| [Recover attachments with an unusable modification time](#recover-attachments-with-an-unusable-modification-time) | Uploads attachments whose stored modification time cannot be parsed, instead of skipping them forever. Without this, an attachment whose mtime is empty never uploads its file. |  |
+| [Send attachment uploads as the file itself](#send-attachment-uploads-as-the-file-itself) | Sends an attachment upload without the multipart form around it when the server authorized the upload without an S3 form. Workaround for servers that take the bytes themselves; uploads that carry a form are unaffected. |  |
 
-&nbsp;
+</details>
 
-## 🚀 Getting development started
-
-To start using this template, follow these steps:
-
-1. [Setup](https://github.com/MorpheApp/morphe-documentation/blob/main/docs/morphe-development/README.md) your development environment including adding a GitHub PAT as described [here](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/2_1_setup.md#-prepare-the-environment).
-2. [Create a new repository using this template](https://github.com/new?template_name=morphe-patches-template&template_owner=MorpheApp). Select create a new repository, and **enable 'Include all branches'** 
-3. Enable "Allow GitHub Actions to create and approve pull requests" in your repo Settings > Actions > General > Workflow permissions
-4. Update the [build.gradle.kts](patches/build.gradle.kts) file (Specifically, the 
-   [group of the project](patches/build.gradle.kts#L1), and the [About](patches/build.gradle.kts#L6-L11))
-5. Update the [README.md](README.md) file to be specific of your repo, and update the links in the [issue templates](.github/ISSUE_TEMPLATE).
-6. Choose a name for your patches project. Keep in mind you must use a name that does not 
-   imply authorship by the Morphe open source project. If unsure, then simply name these
-   patches after yourself ("UserXYZ Morphe patches"). See the [NOTICE](NOTICE) for details. 
-7. (Optional): Add `patches-bundle.png` to the project if you want a custom icon to show in
-   Morphe Manager instead of your GitHub profile avatar.
-
-🎉 You are now ready to start creating patches!
-
-## 🧑‍💻 Dev usage
-
-To develop and release your Patches using this template:
-
-- **Make all changes to the `dev` branch.**
-- For local development work build your patches using the gradle task `./gradlew buildAndroid` to generate the mpp file found in `patches/build/libs/patches-*.mpp`. Apply your patches locally using Morphe Desktop tool like any other patch bundle.
-- Always use [Semantic commit](https://kapeli.com/cheat_sheets/Semantic_Commits.docset/Contents/Resources/Documents/index) messages for commits. To keep it simple use only 3 commit message types: 
-  - `feat: Added a new feature`
-  - `fix: Some problem now fixed`
-  - `chore: Random change you do not want in the user facing changelog`
-- Commits of `fix:` and `feat:` will automatically generate new pre-releases and `chore:` will not create a new release.
-- Users can apply your dev branch releases by enabling `pre-release` in Morphe Manager patch sources.
-- When your dev branch is ready, and you want a stable release, merge dev branch to main (do not squash, and only merge).
-- **Always use semantic release (release.yml)**. Do not manually upload or create releases by hand
-  because many files must be updated and release.yml handles everything.
-
-## 🤓 Tips
-- See the [patcher documentation](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/1_patcher_intro.md) for more examples of creating patches and fingerprints.
-- Do not use AI to create new release scripts. The `release.yml` here already handles everything.
-  If you need omething custom with your releases then modify the existing `release.yml`
-  and `.releaserc` instead of writing everything new from scratch.
-- Do not manually edit or manually commit any generated files such as: `patches-list.json`,
-  `patches-bundle.json`, `CHANGELOG.md`.  These files will be automatically updated by `release.yml`.
-- Do not force push any semantic release commits as that will break all future releases.
-  If you need to fix a broken release, it's always easiest to create a new release instead of 
-  fixing an existing release.
-
-
-<!-- The patches end tag is intentionally placed here so the first release will clean up 
-     this readme of all developer instructions above. -->
 <!-- PATCHES_END -->
 
 ### 🛠️ Building locally
@@ -93,4 +55,19 @@ See the [Morphe documentation](https://github.com/MorpheApp/morphe-documentation
 
 ## 📜 License
 
-Paresh Zotero patches are licensed under the [GNU General Public License v3.0](LICENSE)
+Anondev Zotero Patches are licensed under the [GNU General Public License v3.0](LICENSE)
+
+## ⚖️ Not affiliated
+
+This project is not affiliated with, endorsed by, or sponsored by the Corporation for Digital
+Scholarship or the Zotero project. “Zotero” is a registered trademark of the Corporation for
+Digital Scholarship, and is used here only to name the application these patches apply to.
+
+It distributes **only patch code** — the `.mpp` bundle in each release — and never the Zotero
+application, its source, or a patched APK. The Zotero software is licensed under the AGPLv3, and
+Zotero's trademarks policy states that the AGPL grants no right to use the Zotero name in
+connection with derivative works (<https://www.zotero.org/trademark>).
+
+What you build with these patches is for your own use on a copy of the app you already have. If
+you instead publish a patched APK, you are distributing an AGPLv3 derivative work and take on the
+obligations that go with it — including the one above.

@@ -3,9 +3,12 @@ morphe-patcher = "1.14.1"
 #noinspection GradleDependency
 smali = "d92701d947"
 gson = "2.14.0"
+# Kept in step with the app's own buildSrc/Libs.kt.
+okhttp = "5.4.0"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 # Gradle plugins adds the dependency during build, this declaration is here only for dependabot to provide updates.
 #noinspection UnusedVersionCatalogEntry
 morphe-patcher = { module = "app.morphe:morphe-patcher", version.ref = "morphe-patcher" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }

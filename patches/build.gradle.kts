@@ -1,11 +1,11 @@
-group = "app.paresh.patches.zotero"
+group = "app.anondev.patches.zotero"
 
 patches {
     about {
-        name = "Paresh Zotero patches"
+        name = "Anondev Zotero Patches"
         description = "Self-hosted sync for the Zotero Android app — choose your server domain when patching."
         source = "https://github.com/raphaelbahat/zotero-self-hosted-sync"
-        author = "paresh"
+        author = "anondev"
         contact = "na"
         website = "na"
         license = "GPLv3"
