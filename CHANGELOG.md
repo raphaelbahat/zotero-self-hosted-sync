@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.0...v1.0.1) (2026-09-24)
+
+### 🐛 Bug Fixes
+
+* **patches:** remove the workarounds the released server made unnecessary ([eccf02e](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/eccf02e30429270579c6d2bdfea052d0384a5316))
+
 ## [1.0.1-dev.1](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.0...v1.0.1-dev.1) (2026-09-24)
 
 ### 🐛 Bug Fixes
