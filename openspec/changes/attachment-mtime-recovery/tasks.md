@@ -17,8 +17,8 @@
 
 ## 4. Device verification (needs the device)
 
-- [ ] 4.1 Install and sync: confirm the reader no longer logs the skip, that `UploadAttachmentSyncAction` logs an upload, that a request reaches an `items/<key>/file` endpoint, and that bytes arrive (server-side check).
-- [ ] 4.2 Confirm the attachment's stored `mtime` is the file's own value after the upload, and that a later sync does not reintroduce an unusable value.
+- [x] 4.1 Install and sync: the reader no longer logs the skip (0 `mtime field value not a number` lines, was 12 per pass), `UploadAttachmentSyncAction` reaches the upload, the request reaches `items/Z5B8C2J9/file` and is answered `200`, the bytes are uploaded, and the register step answers `204` — altero only returns that after re-reading the stored bytes and matching the authorized length and digest.
+- [x] 4.2 A later sync does not reintroduce an unusable value: with the attachment uploaded, a following sync window makes **0** requests to its file endpoint (measured in its own window), so the reader no longer consults the field. **Correction, verified in the client source:** the stored value is the substitute this patch supplies, not the file's own modification time — `StoreMtimeForAttachmentDbRequest` is called only by `WebDavController`, so the sync/upload path never writes the file's mtime. The earlier wording here and D4 below were wrong and are corrected.
 
 ## 5. Hygiene
 

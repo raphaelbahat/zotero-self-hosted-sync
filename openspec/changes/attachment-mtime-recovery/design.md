@@ -51,9 +51,14 @@ classes, so the change must be scoped to this class.
   re-introduces the extension module the first change removed.
 - **D3 — On by default.** The behaviour it replaces is a silent, permanent failure to upload, so the
   patch belongs in the default set; the description states what it does.
-- **D4 — The substitute is transient.** After a successful upload the client stores the file's own
-  modification time (`StoreMtimeForAttachmentDbRequest`), so the field converges without further
-  intervention.
+- **D4 — The substitute is what the server records, and it is corrected at the source, not here.**
+  An earlier version of this change claimed the client stores the file's own modification time after
+  the upload (`StoreMtimeForAttachmentDbRequest`). That is wrong: the request is called only by
+  `WebDavController`, never by the sync path, so the value the upload declares — this substitute —
+  is what the attachment ends up carrying on the server and on every client. It is good enough to
+  make the attachment uploadable and to stop the reader skipping it, but it is the upload time
+  rather than the file's own mtime, which is a bounded inaccuracy this patch accepts rather than
+  hides. Closing that would mean writing the file's mtime in the sync path as well.
 
 ## Risks / Trade-offs
 

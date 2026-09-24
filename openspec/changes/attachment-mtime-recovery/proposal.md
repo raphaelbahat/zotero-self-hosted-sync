@@ -17,8 +17,11 @@ The same reader already repairs the analogous case for `md5` (a literal `"null"`
 - A new patch, **Recover attachments with an unusable modification time** (on by default, since the
   alternative is silently never uploading), that substitutes a usable modification time instead of
   discarding the attachment.
-- After the upload, the client's existing `StoreMtimeForAttachmentDbRequest` stores the file's own
-  modification time, so the substitute is transient and the field converges.
+- The substitute is a bounded inaccuracy: it becomes the value the attachment carries (the sync path
+  never writes the file's own modification time — `StoreMtimeForAttachmentDbRequest` belongs to
+  WebDAV only), so it is the upload time rather than the file's. That is a deliberate trade against
+  never uploading the file at all, and it is stated as such in the design rather than left as a claim
+  that the field converges on its own.
 - A small extension module returns to the bundle to provide the helper (JDK-only code).
 
 ## Capabilities
