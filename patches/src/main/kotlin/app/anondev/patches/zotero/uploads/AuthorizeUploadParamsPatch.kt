@@ -55,9 +55,9 @@ private const val EXTENSION_METHOD = "orEmpty"
 @Suppress("unused")
 val authorizeUploadParamsPatch = bytecodePatch(
     name = "Accept upload authorization that carries no upload form",
-    description = "Uploads the file when the sync server authorizes an upload without an S3 form " +
-        "envelope. Without this, an authorization the server completed is thrown away as a parse " +
-        "error and the attachment never uploads.",
+    description = "Temporary workaround: uploads the file when the sync server authorizes an " +
+        "upload without an S3 form envelope. Without this, an authorization the server " +
+        "completed is thrown away as a parse error and the attachment never uploads.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZOTERO)

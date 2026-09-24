@@ -64,9 +64,9 @@ private const val MAX_STEPS_TO_REPAIR = 12
 @Suppress("unused")
 val attachmentMd5RecoveryPatch = bytecodePatch(
     name = "Recover attachments with an unusable MD5",
-    description = "Uploads attachments whose stored MD5 is empty or malformed, instead of sending " +
-        "an unusable digest the server rejects. Without this, the attachment's file never uploads " +
-        "and never reaches other devices.",
+    description = "Temporary workaround: uploads attachments whose stored MD5 is empty or " +
+        "malformed, instead of sending an unusable digest the server rejects. Without this, the " +
+        "attachment's file never uploads and never reaches other devices.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZOTERO)

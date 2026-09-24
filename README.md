@@ -21,6 +21,20 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 
 <!-- PATCHES_START EXPANDED -->
 > **[v1.0.0](https://github.com/raphaelbahat/zotero-self-hosted-sync/releases/tag/v1.0.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
+
+> **⚠️ Temporary workarounds**
+>
+> Most patches in this bundle work around a defect in the app or in the sync server rather than
+> adding a feature, and each is removed once the fix it depends on ships. They are marked
+> **⏳ Temporary workaround** in the tables below; a patch without that mark is durable. In the
+> **Default** column, `✅` means the patch is applied when you patch the app, and `—` means you
+> have to switch it on yourself.
+>
+> The four marked ones come from two places: the upload authorization and transfer steps, where
+> a server that hands out no upload form is not understood ([eseifert/altero#13]
+> (https://github.com/eseifert/altero/issues/13)), and the app's own upload reader, which
+> discards an attachment whose stored `md5` or `mtime` it cannot use. All four go away when those
+> are dealt with.
 <details open>
 <summary>📦 Zotero&nbsp;&nbsp;•&nbsp;&nbsp;7 patches</summary>
 <br>
@@ -30,15 +44,15 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 | 1.0.0-247 |
 | :---: |
 
-| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
-|----------|----------------|-----------|
-| [Accept upload authorization that carries no upload form](#accept-upload-authorization-that-carries-no-upload-form) | Uploads the file when the sync server authorizes an upload without an S3 form envelope. Without this, an authorization the server completed is thrown away as a parse error and the attachment never uploads. |  |
-| [Custom sync server](#custom-sync-server) | Redirects Zotero's sync API and live-update stream to your own server. | • Server address<br>• Streaming address (optional) |
-| [Custom sync server: allow cleartext streaming](#custom-sync-server-allow-cleartext-streaming) | Adds the chosen streaming host to the app's cleartext allow-list when the stream URL is ws:// or http://. | • Server address<br>• Streaming address (optional) |
-| [Enable verbose logging](#enable-verbose-logging) | Plants Timber's debug tree so the app's own log lines reach logcat. Diagnostics only — expect a lot of output. |  |
-| [Recover attachments with an unusable MD5](#recover-attachments-with-an-unusable-md5) | Uploads attachments whose stored MD5 is empty or malformed, instead of sending an unusable digest the server rejects. Without this, the attachment's file never uploads and never reaches other devices. |  |
-| [Recover attachments with an unusable modification time](#recover-attachments-with-an-unusable-modification-time) | Uploads attachments whose stored modification time cannot be parsed, instead of skipping them forever. Without this, an attachment whose mtime is empty never uploads its file. |  |
-| [Send attachment uploads as the file itself](#send-attachment-uploads-as-the-file-itself) | Sends an attachment upload without the multipart form around it when the server authorized the upload without an S3 form. Workaround for servers that take the bytes themselves; uploads that carry a form are unaffected. |  |
+| 💊&nbsp;Patch | ✅&nbsp;Default | 📜&nbsp;Description | ⚙️&nbsp;Options |
+|----------|:---:|----------------|-----------|
+| [Accept upload authorization that carries no upload form](#accept-upload-authorization-that-carries-no-upload-form) | ✅ | **⏳ Temporary workaround** — uploads the file when the sync server authorizes an upload without an S3 form envelope. Without this, an authorization the server completed is thrown away as a parse error and the attachment never uploads. |  |
+| [Custom sync server](#custom-sync-server) | ✅ | Redirects Zotero's sync API and live-update stream to your own server. | • Server address<br>• Streaming address (optional) |
+| [Custom sync server: allow cleartext streaming](#custom-sync-server-allow-cleartext-streaming) | ✅ | Adds the chosen streaming host to the app's cleartext allow-list when the stream URL is ws:// or http://. | • Server address<br>• Streaming address (optional) |
+| [Enable verbose logging](#enable-verbose-logging) | — | **🧪 For development only.** Plants Timber's debug tree so the app's own log lines reach logcat — expect a lot of output, and do not patch this into a build you rely on. |  |
+| [Recover attachments with an unusable MD5](#recover-attachments-with-an-unusable-md5) | ✅ | **⏳ Temporary workaround** — uploads attachments whose stored MD5 is empty or malformed, instead of sending an unusable digest the server rejects. Without this, the attachment's file never uploads and never reaches other devices. |  |
+| [Recover attachments with an unusable modification time](#recover-attachments-with-an-unusable-modification-time) | ✅ | **⏳ Temporary workaround** — uploads attachments whose stored modification time cannot be parsed, instead of skipping them forever. Without this, an attachment whose mtime is empty never uploads its file. |  |
+| [Send attachment uploads as the file itself](#send-attachment-uploads-as-the-file-itself) | ✅ | **⏳ Temporary workaround** — sends an attachment upload without the multipart form around it when the server authorized the upload without an S3 form. For servers that take the bytes themselves; uploads that carry a form are unaffected. |  |
 
 </details>
 

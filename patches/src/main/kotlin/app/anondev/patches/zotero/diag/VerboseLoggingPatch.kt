@@ -37,8 +37,8 @@ private const val INITIALIZER = "<clinit>"
 @Suppress("unused")
 val verboseLoggingPatch = bytecodePatch(
     name = "Enable verbose logging",
-    description = "Plants Timber's debug tree so the app's own log lines reach logcat. " +
-        "Diagnostics only — expect a lot of output.",
+    description = "For development only. Plants Timber's debug tree so the app's own log lines " +
+        "reach logcat — expect a lot of output, and do not patch this into a build you rely on.",
     default = false,
 ) {
     compatibleWith(COMPATIBILITY_ZOTERO)
