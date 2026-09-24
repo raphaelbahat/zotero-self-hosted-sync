@@ -2,7 +2,7 @@
 
 - Validated against: live framework/library/tool documentation
 - Validation date: 2026-09-24
-- Verdict: READY (post-revision, two rounds)
+- Verdict: READY (post-revision, four rounds)
 
 Two read-only validator groups checked the original tasks against live documentation; the
 operator approved the revisions they listed, they were applied, and a second focused round then
@@ -69,6 +69,81 @@ against that source before the verdict was restated.
 - The toolchain is BKS-first: the patcher's signer constructs `KeyStore.getInstance("BKS", BouncyCastleProvider.PROVIDER_NAME)` and installs BouncyCastle itself, and the CLI's `KeystoreImporter.ensureBks` byte-sniffs the file and returns an already-BKS keystore unchanged. The operator's `Morphe.keystore` is BKS v2 with alias `Morphe` and an empty store password — **no conversion is required**.
 - **Fix applied (the round's only NEEDS_FIX):** the 4.1 command omitted the enable flag. `-O/--options` is declared inside the enable-selection group and the CLI applies options only for enabled selections, so 4.1 now passes `-e "<patch name>"` (with the real `server`/`streaming` keys) before the option values.
 - Evidence: https://github.com/MorpheApp/morphe-patcher/blob/main/src/main/kotlin/app/morphe/patcher/apk/ApkSigner.kt ; https://github.com/MorpheApp/morphe-desktop/blob/main/src/main/kotlin/app/morphe/engine/util/KeystoreImporter.kt ; `.../desktop/command/PatchCommand.kt`
+
+---
+
+## Round 3 — the login-URL append (found on the device)
+
+### Finding
+
+The device showed a blank "Not Found" page when signing in. A live probe of the operator's
+server isolated the cause: the app appends the literal `"&app=1"` to the `loginURL` the server
+returns (`LoginViewModel`), and against a queryless URL that lands in the path:
+
+| URL opened | Response |
+|---|---|
+| as returned by `POST /keys/sessions` | `303` — the approval page |
+| with the app's append (`…/login&app=1`) | `404` — "Not Found", an empty page in the WebView |
+| with a corrected separator (`…/login?app=1`) | `303` |
+
+### Resolution
+
+- Artifacts amended: a spec scenario ("The server-provided login URL is opened verbatim"),
+  design **D9**, a risk line, task 2.9, and **ADR-0004** (Accepted).
+- Patch change: a fourth rewrite replaces the `"&app=1"` literal with an empty string, so the URL
+  is opened exactly as returned; absence of the literal is tolerated because a future target may
+  stop appending.
+- Verified in the patched artifact: `LoginViewModel.smali:760` now reads `const-string p1, ""`; the
+  patched classes contain no `&app=1` append (the one remaining `app=1` match is the create-account
+  URL, which the spec keeps pointing at zotero.org); the rewrite set grew from 17 to 18 classes as
+  expected.
+
+### Evidence
+
+- altero compatibility reference — the client "opens the `loginURL` it gets back":
+  https://github.com/eseifert/altero/blob/master/docs/compatibility.md
+- altero routes: `src/altero/api/routes/keys.py` (`POST /keys/sessions` → 201,
+  `GET /keys/sessions/{token}`, `GET /keys/sessions/{token}/login`)
+- Live measurements above; device reproduction: a blank "Not Found" page.
+
+---
+
+## Round 4 — the deletion precondition header (found on the device)
+
+### Finding
+
+Deletions from the patched app failed against the strict server with `Failed API response:
+`If-Unmodified-Since-Version` not provided` (HTTP `428`). The app builds the deletion write with the
+misspelled header name `If-Modified-Since-Version`, which no client or server defines, so a server
+that enforces the v3 write precondition sees no header at all. The hosted zotero.org server
+tolerates it, which is why the bug never surfaced there.
+
+Confirmed in the pinned artifact and the source: the misspelled literal occurs in the deletion
+write (`SubmitDeletionSyncAction`) and in two **read** paths (`LoadDeletionsSyncAction`,
+`SyncSettingsSyncAction`), while the item and settings writes already send the correct
+`If-Unmodified-Since-Version` — which is exactly why updates succeeded while deletions did not.
+
+### Resolution
+
+- Artifacts amended: a requirement with three scenarios ("Protocol-conformant write
+  preconditions"), design **D10**, a risk line, and tasks 2.10 and 4.9.
+- Patch change (R5): the misspelled literal is rewritten **everywhere it appears** — the deletion
+  write (`SubmitDeletionSyncAction`) and the two read paths that carried the same typo
+  (`LoadDeletionsSyncAction`, `SyncSettingsSyncAction`) — and the patch fails when the literal is
+  absent. The read-path risk was checked rather than assumed: the v3 protocol scopes the
+  precondition to writes, and the strict server parses the header only in its write paths
+  (`services/writes.py`, `api/batch.py`), so sending the documented name on a read changes nothing
+  there.
+- Verified in the patched artifact: all three sites carry `If-Unmodified-Since-Version`, no patched
+  class carries the misspelled name, and the rewrite set grew by the two read-path classes
+  (19 → 21).
+
+### Evidence
+
+- Device: HTTP `428` with the quoted body on deletion.
+- Source: `app/src/main/java/org/zotero/android/sync/syncactions/SubmitDeletionSyncAction.kt:64`
+  (misspelled) versus `SubmitUpdateSyncAction.kt:100,168` (correct).
+- Artifact: `analysis/zotero/smali/classes8/org/zotero/android/sync/syncactions/SubmitDeletionSyncAction$result$networkResult$1.smali:351`.
 
 ---
 

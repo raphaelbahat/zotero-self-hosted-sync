@@ -38,6 +38,11 @@ The patched application MUST direct every synchronisation request to the configu
 - **THEN** the page opened is the one the self-hosted server returned for this session, not a zotero.org page
 - **AND** linking completes with the app holding a key issued by that server
 
+#### Scenario: The server-provided login URL is opened verbatim
+
+- **GIVEN** the server returns a login URL that carries no query string
+- **WHEN** the app opens that URL for account approval
+- **THEN** the URL is opened exactly as returned, and the approval page loads instead of a not-found page
 #### Scenario: Attachment transfer follows the server
 
 - **GIVEN** the patched app synchronises an attachment
@@ -132,3 +137,28 @@ The patch MUST change only the two synchronisation endpoints and MUST leave ever
 - **GIVEN** the original APK with the patch not applied
 - **WHEN** the app synchronises
 - **THEN** it uses the zotero.org endpoints exactly as the store build does
+
+### Requirement: Protocol-conformant write preconditions
+
+Feature: Custom sync endpoint
+Rule: Writes to a strict server carry the precondition the v3 protocol requires.
+
+The patch MUST use the documented `If-Unmodified-Since-Version` name at every site where that header is built, and MUST NOT alter any other request header.
+
+#### Scenario: A deletion carries the precondition header
+
+- **GIVEN** a synced library and a server that enforces the v3 write-protocol precondition
+- **WHEN** the client deletes an object
+- **THEN** the request carries `If-Unmodified-Since-Version` with the library version the client last saw, and the server accepts the deletion instead of answering `428 Precondition Required`
+
+#### Scenario: A stale precondition is answered with the standard conflict
+
+- **GIVEN** the library has advanced on the server since the client last synced
+- **WHEN** the client sends the deletion
+- **THEN** the server answers `412` and the client's normal re-sync-and-retry flow takes over
+
+#### Scenario: The precondition header is spelled consistently
+
+- **GIVEN** the patched client
+- **WHEN** it deletes an object, and when it reads deletions or settings
+- **THEN** each of those requests carries `If-Unmodified-Since-Version` and none carries the misspelled name

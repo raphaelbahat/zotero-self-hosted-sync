@@ -22,3 +22,4 @@ items, later revising the streaming and cleartext decisions in favour of a scope
   `org.zotero.android`; no rename, repackage or re-namespace step is permitted.
 - `adr/0003-scoped-cleartext-for-streaming.md` - cleartext is permitted only for the
   operator-supplied streaming host, and only because that server serves the stream over plain WS.
+- `adr/0004-server-provided-urls-used-verbatim.md` - a URL the server returns is opened unchanged; the client must not append query fragments to it.

@@ -121,6 +121,7 @@ C4Dynamic
   1.3–1.4), so the patch is written against the artifact.
 - **D8 — Cleartext only for the supplied streaming host.** When a cleartext streaming URL is given,
   the patch adds exactly that host to the cleartext allowlist — nothing else changes (ADR-0003).
+- **D9 — Server-provided URLs are opened verbatim.** The app appends `"&app=1"` to the `loginURL` it is handed. Against a server whose login URL carries no query string that turns the path into `/login&app=1`, which the server answers `404` — measured against the operator's server: as returned `303`, with the app's append `404`, and `?app=1` `303`. The patch rewrites that literal to an empty string so the URL is opened exactly as returned. Alternative: rewrite it to `"?app=1"`, which is correct only for queryless URLs and wrong for any server that returns a query. Recorded as ADR-0004.
 
 ## Risks / Trade-offs
 
@@ -132,6 +133,8 @@ C4Dynamic
   to the single host from the option (ADR-0003); prefer `wss://` where the server can offer it.
 - [A resource patch edits compiled XML] → one `<domain>` entry is added to the existing cleartext
   `domain-config`; device verification (4.8) confirms it in the patched APK.
+- [The app mutates a URL the server provided] → the `&app=1` append is neutralised (D9/ADR-0004); device verification 4.2 requires the approval page to load.
+- **D10 — Correct the client's precondition header, consistently.** The app builds the deletion write with the misspelled header `If-Modified-Since-Version`, which no client or server defines; a server that enforces the v3 write precondition therefore sees no precondition and answers `428 Precondition Required`. The patch rewrites that literal **everywhere it appears** — the deletion write and the two read paths that carried the same typo (`LoadDeletionsSyncAction`, `SyncSettingsSyncAction`) — so the header has one documented spelling. The risk of newly asserting a precondition on a read was checked rather than assumed: the v3 protocol scopes the precondition to writes, and the strict server parses the header only in its write paths (`services/writes.py`), so the reads are unaffected. Alternative: fix only the write site, rejected — it leaves a latent typo that could regress silently. Verified in the pinned artifact: the misspelled literal occurs once per site in three classes, while the item/settings writes already send `If-Unmodified-Since-Version` — which is why updates worked and deletions did not.
 - [Login compatibility depends on the server implementing the login-session protocol] → altero
   implements it; device verification (4.2) proves it end to end.
 - [Installing over a Play-signed build fails on signature] → documented: uninstall the store

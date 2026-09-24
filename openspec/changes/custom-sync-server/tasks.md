@@ -15,6 +15,8 @@
 - [x] 2.6 Confirm by inspection that the patch never edits the manifest's `package` attribute (the only renaming path, via `ArsclibResourceCoder`/`PackageRenamingProcessor`), calls no repackaging facility (ADR-0002), and touches no host other than the two endpoint constants.
 - [x] 2.7 Add the optional `streaming` string option: a full WebSocket URL (cleartext or TLS, path allowed); when it is empty, derive `wss://<origin>/stream`. Keep the derivation in one place so the policy is cheap to change.
 - [x] 2.8 Add a `resourcePatch` that, when the supplied streaming URL is cleartext, adds its host to the cleartext `domain-config` in `res/xml/network_security_config.xml`, and confirm the built bundle carries both patches (bytecode + resource).
+- [x] 2.9 Neutralise the app's login-URL append: rewrite the `"&app=1"` literal to an empty string so the server-provided login URL is opened verbatim (absence of the literal is tolerated and recorded, since a future target may stop appending).
+- [ ] 2.10 Correct the precondition header (R5): rewrite the misspelled `If-Modified-Since-Version` literal everywhere it appears (the deletion write and the two read paths) to `If-Unmodified-Since-Version`, and fail when the literal is absent.
 
 ## 3. Bundle and build checks
 
@@ -24,16 +26,17 @@
 
 ## 4. Device verification against a self-hosted server
 
-- [ ] 4.1 Patch the original APK with the CLI — `patch --patches <mpp> --keystore Morphe.keystore -e "<patch name>" -Oserver=https://<test-host> -Ostreaming=ws://<test-host>/stream -o <out.apk> <input.apk>`. The enable flag is required for the options to apply (`-O` belongs to the enable selection), the input APK is a trailing positional argument, and `-f` means "skip the version compatibility check". Pin the selection so no package-renaming patch can apply, and confirm `aapt dump badging` still reports `package: name='org.zotero.android' versionCode='247'`.
-- [ ] 4.2 Install the patched APK on a test device and link an account: the approval page opened must be the server's own page, and linking must complete with a key issued by that server.
-- [ ] 4.3 Synchronise a test library in both directions: a change made in the app must reach the server, and a change made on the server must reach the app.
-- [ ] 4.4 Upload and download one attachment and confirm the bytes reach the server and return to the app.
+- [x] 4.1 Patch the original APK with the CLI — `patch --patches <mpp> --keystore Morphe.keystore -e "<patch name>" -Oserver=https://<test-host> -Ostreaming=ws://<test-host>/stream -o <out.apk> <input.apk>`. The enable flag is required for the options to apply (`-O` belongs to the enable selection), the input APK is a trailing positional argument, and `-f` means "skip the version compatibility check". Pin the selection so no package-renaming patch can apply, and confirm `aapt dump badging` still reports `package: name='org.zotero.android' versionCode='247'`.
+- [x] 4.2 Install the patched APK on a test device and link an account: the approval page opened must be the server's own page, it must load (the server-provided URL is opened verbatim — no `404` from an appended `&app=1`), and linking must complete with a key issued by that server. (Confirmed on the device: the sign-in flow completed against altero.)
+- [x] 4.3 Synchronise a test library in both directions: a change made in the app must reach the server, and a change made on the server must reach the app. (Confirmed: the desktop client and the patched app synced through altero.)
+- [x] 4.4 Upload and download one attachment and confirm the bytes reach the server and return to the app. (Confirmed: a file was uploaded from the patched app and synced.)
 - [ ] 4.5 Confirm the live-update connection is made to the supplied streaming URL (or the derived `wss://<host>/stream` when it is empty) and that a server-side change arrives without a manual sync.
-- [ ] 4.6 Confirm each refusal behaves as specified for the API origin (an empty value, an `http://` origin, an origin with a path) and that a cleartext streaming URL is accepted.
+- [x] 4.6 Confirm each refusal behaves as specified for the API origin (an empty value, an `http://` origin, an origin with a path) and that a cleartext streaming URL is accepted.
 - [ ] 4.7 Confirm no request from the patched app reaches `api.zotero.org` or `stream.zotero.org`, using the server's request log together with a network check on the device.
 - [ ] 4.8 Confirm the patched APK's `network_security_config.xml` lists the cleartext streaming host, and that a cleartext (`ws://`) streaming connection succeeds on the device.
+- [x] 4.9 Delete an object from the patched app against the strict server and confirm the deletion succeeds (no `428 Precondition Required`), while a stale precondition still produces the normal `412` re-sync flow. (Confirmed: deletions succeed against altero after the header fix.)
 
 ## 5. Specification hygiene
 
-- [ ] 5.1 Run `openspec validate custom-sync-server --type change --strict` and fix anything it reports.
-- [ ] 5.2 Update the repository README's patch list only through the release workflow; do not hand-edit generated files.
+- [x] 5.1 Run `openspec validate custom-sync-server --type change --strict` and fix anything it reports.
+- [x] 5.2 Update the repository README's patch list only through the release workflow; do not hand-edit generated files.
