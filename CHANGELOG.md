@@ -1,3 +1,9 @@
+## [1.0.4](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.3...v1.0.4) (2026-09-24)
+
+### 🐛 Bug Fixes
+
+* **ci:** retire dev — release on main, and validate dependabot against it ([198e670](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/198e670d8f861b0a6cb9a955fc1a78aa0bd1a553))
+
 ## [1.0.3](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.2...v1.0.3) (2026-09-24)
 
 ### 🐛 Bug Fixes
