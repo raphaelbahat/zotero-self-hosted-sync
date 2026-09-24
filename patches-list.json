@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.1",
+  "version": "1.0.0-dev.2",
   "patches": [
     {
       "name": "Custom sync server",
@@ -93,6 +93,60 @@
           "values": null
         }
       ]
+    },
+    {
+      "name": "Enable verbose logging",
+      "description": "Plants Timber's debug tree so the app's own log lines reach logcat. Diagnostics only — expect a lot of output.",
+      "default": false,
+      "category": "Diagnostics",
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "org.zotero.android",
+          "name": "Zotero",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#CC2936",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "1.0.0-247",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Recover attachments with an unusable modification time",
+      "description": "Uploads attachments whose stored modification time cannot be parsed, instead of skipping them forever. Without this, an attachment whose mtime is empty never uploads its file.",
+      "default": true,
+      "category": "Sync",
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "org.zotero.android",
+          "name": "Zotero",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#CC2936",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "1.0.0-247",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
     }
   ]
 }
