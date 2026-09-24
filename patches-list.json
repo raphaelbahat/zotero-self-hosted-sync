@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "patches": [
     {
       "name": "Custom sync server",
@@ -123,7 +123,7 @@
     },
     {
       "name": "Recover attachments with an unusable modification time",
-      "description": "Temporary workaround: the Zotero Android app discards an attachment whose stored modification time it cannot parse, instead of repairing it, so the file is never uploaded. Reported upstream: https://github.com/zotero/zotero-android/issues/351",
+      "description": "Temporary workaround: uploads attachments whose stored modification time cannot be parsed, instead of skipping them forever. Without this, an attachment whose mtime is empty never uploads its file.",
       "default": true,
       "category": "Sync",
       "dependencies": [],
