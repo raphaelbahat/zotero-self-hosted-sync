@@ -75,7 +75,6 @@ jobs:
       - name: Fetch the other release branches
         run: |
           git fetch origin '+refs/heads/*:refs/remotes/origin/*' --tags
-          git branch --force dev origin/dev
 
       - name: Setup Java
         uses: actions/setup-java@v6.0.1
@@ -96,6 +95,12 @@ jobs:
       - name: Release
         uses: cycjimmy/semantic-release-action@v6
         id: release
+        with:
+          # Only main releases. Without this the action evaluates every branch .releaserc lists —
+          # dev among them, as a prerelease — and a run from main came out as a dev pre-release the
+          # first time this workflow ran. Overriding here also leaves the pre-release branch in
+          # .releaserc idle rather than removed: nothing reads it while this line stands.
+          branches: main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
