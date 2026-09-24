@@ -1,12 +1,55 @@
 name: Release
 
+# A push to dev is merged into main and released from there, in one run. There is no pull request
+# and nothing waits on a human, by design.
+#
+# Two things about that are worth knowing before changing this file:
+#
+#   - Every push to dev becomes a stable release. dev is merged to main immediately, so the branches
+#     stay in step and a prerelease stage would have nothing to sit between.
+#   - The `branches: [dev]` trigger is what stops this from looping. Pushes made with the repository
+#     token — the release commit on main, and the backmerge that carries it into dev — do not start
+#     workflows of their own, so the merge runs once per human push and not once per release.
+#
+# main is deliberately not protected. A protected main would reject the merge in the first job, and
+# the release with it.
+
 on:
   workflow_dispatch:
   push:
+    branches:
+      - dev
 
 jobs:
+  merge:
+    name: Merge dev into main
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      # --no-ff and never a squash: the release tooling reads the commits dev brings with it, and
+      # squashing them into one would hide the fix:/feat: types that decide the next version.
+      - name: Merge dev into main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin dev
+          if ! git merge --no-ff --no-edit origin/dev; then
+            git merge --abort
+            echo "::error::dev does not merge cleanly into main. Nothing was pushed; both branches are as they were."
+            exit 1
+          fi
+          git push origin main
+
   release:
     name: Release
+    needs: merge
     permissions:
       contents: write
       packages: write
@@ -16,9 +59,12 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
+      # main, because that is the branch the merge above just moved and the one semantic-release
+      # reads a stable version from.
       - name: Checkout
         uses: actions/checkout@v7
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Setup Java
@@ -36,8 +82,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Semantic release runs its own Gradle build command.
-      # Only dev and main branch will generate a release as specified by .releaserc
+      # Semantic release runs its own Gradle build command, and pushes the release commit itself.
       - name: Release
         uses: cycjimmy/semantic-release-action@v6
         id: release
@@ -45,18 +90,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Attest
-        # Build attestations are only available for public repositories (and for
-        # organisation-owned ones). On a private repository this step fails the whole run
-        # after a release has already been published, so it is skipped there instead — and
-        # it starts working by itself the day the repository is made public.
+        # Build attestations are only available for public repositories (and for organisation-owned
+        # ones). On a private repository this step fails a run whose release is already published,
+        # so it is skipped there and starts working by itself the day the repository is public.
         if: steps.release.outputs.new_release_published == 'true' && !github.event.repository.private
         uses: actions/attest-build-provenance@v4
         with:
           subject-name: 'Morphe Patches ${{ steps.release.outputs.new_release_git_tag }}'
           subject-path: patches/build/libs/patches-*.mpp
 
-      # Always verify compilation when semantic-release did not publish a release.
-      # This covers non-main/dev branches, chore commits, docs commits, etc.
+      # Compile when semantic-release published nothing — a docs or chore commit, which still
+      # arrives here because every dev push is merged — so a broken source tree is never merged
+      # silently.
       - name: Verify project compiles
         if: steps.release.outputs.new_release_published != 'true'
         env:
