@@ -1,3 +1,9 @@
+## [1.0.0-dev.4](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2026-09-24)
+
+### 🐛 Bug Fixes
+
+* **ci:** let the release workflow reach the API and the PR workflow open its pull request ([0e640ab](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/0e640abfdb441cfbfba5be73c3850fd69fd1fc6a))
+
 ## [1.0.0-dev.3](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2026-09-24)
 
 ### 🐛 Bug Fixes
