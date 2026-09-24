@@ -19,11 +19,23 @@ The patch MUST substitute a usable modification time instead of discarding the a
 - **WHEN** the client collects the attachments it needs to upload
 - **THEN** the stored value is used exactly as before
 
-#### Scenario: The field repairs itself after the upload
+#### Scenario: The value stays usable, but it is the upload's, not the file's
 
 - **GIVEN** an attachment uploaded through this recovery
 - **WHEN** the upload completes
-- **THEN** the client stores the file's own modification time on the attachment, so later syncs no longer depend on the substitute
+- **THEN** the attachment carries the value the upload declared — the substitute — because the
+  client's sync path never writes the file's own modification time (`StoreMtimeForAttachmentDbRequest`
+  is called only by WebDAV). The field is usable rather than unusable, which is what the reader
+  needs; it is not claimed to be the file's own
+
+#### Scenario: The recovery is removed once the client stops needing it
+
+- **GIVEN** the app's upload reader handling an unusable `mtime` by repairing it rather than
+  discarding the attachment
+- **WHEN** that fix is released for the pinned target
+- **THEN** this patch is removed, its extension class deleted, and the change's Migration Plan
+  followed — the server cannot fix this one, because serving `mtime` as `null` still reads as an
+  unusable value to the reader
 
 #### Scenario: Only the upload reader changes
 

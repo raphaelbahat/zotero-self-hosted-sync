@@ -56,10 +56,22 @@ the report alone rather than shipping something that pretends to fix it.
 
 ## Worked example
 
-`eseifert/altero#13` (the authorize response carries no `params`; the upload endpoint takes only a raw
+`eseifert/altero#13` (the authorize response carries no `params`; the upload endpoint took only a raw
 body) — reported with both gaps quoted from server code and client code — was accompanied by two
-patches, **Accept upload authorization that carries no upload form** (a durable client fix for the
-parser's assumption, kept for now) and **Send attachment uploads as the file itself** (the temporary
-half, an OkHttp interceptor installed by replacing the call that closes the client's chain). The
-revert path is written into `openspec/changes/upload-without-form-envelope/design.md` under Migration
-Plan, and the same steps are a task in the operator's list.
+patches, **Accept upload authorization that carries no upload form** and **Send attachment uploads
+as the file itself** (the temporary half, an OkHttp interceptor installed by replacing the call that
+closes the client's chain). The revert path went into the change's Migration Plan, and the same
+steps into the operator's task list.
+
+It has since been carried out, which is the point of writing the path down. The maintainer confirmed
+the diagnosis, fixed both gaps, and released them; the workarounds then came out in the order the
+plan set: proven first by running with all three disabled and uploading a 2.5 MB file end to end
+against the released server (authorize `200` with the form shape parsed, storage upload `201` with
+the server verifying the length and digest it received, register `204`), then deleted along with the
+compile-only dependencies they had brought in, and the change archived.
+
+One workaround stayed, and the record is what makes that legible: `Recover attachments with an
+unusable modification time` cannot be removed by the server fix, because serving `mtime` as `null`
+still reads as an unusable string to the client's reader, which discards the attachment rather than
+repairing it. It stays until the client handles that, and the patch's own description says it is a
+workaround, so a reader of the bundle's tables cannot mistake it for a feature.
