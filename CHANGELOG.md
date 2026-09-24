@@ -1,3 +1,16 @@
+## 1.0.0 (2026-09-24)
+
+### 🐛 Bug Fixes
+
+* **ci:** let the release workflow reach the API and the PR workflow open its pull request ([0e640ab](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/0e640abfdb441cfbfba5be73c3850fd69fd1fc6a))
+* **ci:** skip build attestation on a private repository ([03b1b12](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/03b1b1279edf68cdd583de82cbf84474def01d47)), closes [#2](https://github.com/raphaelbahat/zotero-self-hosted-sync/issues/2)
+* **patches:** open the server login URL verbatim and send the documented precondition header ([a6acda1](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/a6acda14c38e7ffa6edae1eb543f28f0bc107b98))
+* **upload:** complete an upload authorization that carries no form ([382dea6](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/382dea61860ccea94bf07100443564e23b2918f8)), closes [eseifert/altero#13](https://github.com/eseifert/altero/issues/13)
+
+### ✨ New Features
+
+* **patches:** add on-demand logging and attachment upload recovery ([01b0fc2](https://github.com/raphaelbahat/zotero-self-hosted-sync/commit/01b0fc25f6922bd71e88955a26c988ce47b77943))
+
 ## [1.0.0-dev.5](https://github.com/raphaelbahat/zotero-self-hosted-sync/compare/v1.0.0-dev.4...v1.0.0-dev.5) (2026-09-24)
 
 ### 🐛 Bug Fixes
