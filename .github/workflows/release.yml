@@ -53,7 +53,7 @@ jobs:
 
       # Semantic release runs its own Gradle build command, and pushes the release commit itself.
       - name: Release
-        uses: cycjimmy/semantic-release-action@v6
+        uses: cycjimmy/semantic-release-action@v8
         id: release
         with:
           branches: main
